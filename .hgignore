@@ -1,0 +1,15 @@
+#
+# .hgignore -- hgignore(5) for hg(1)
+#
+
+syntax: glob
+*.hi
+*.o
+*.orig
+*.rej
+*.swp
+*~
+
+syntax: regexp
+
+# vim: filetype=conf
