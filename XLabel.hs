@@ -25,11 +25,15 @@ rewrite1 f (s:ss)  = s : rewrite1 f ss
 
 rewrite2 :: ([String] -> [String]) -> [String] -> [String] -> [String]
 rewrite2 f ((c:s):ss) a | isSpace c = rewrite2 f ss ((c:s):a)
-rewrite2 f ss         a = ("X-Label: " ++ (lst2hdr . f . hdr2lst . concat . reverse $ a)) : rewrite1 f ss
+rewrite2 f ss         a = rewrite3 f ss (f . hdr2lst . concat . reverse $ a)
+
+rewrite3 :: ([String] -> [String]) -> [String] -> [String] -> [String]
+rewrite3 f ss [] = rewrite1 f ss
+rewrite3 f ss ls = ("X-Label: " ++ lst2hdr ls) : rewrite1 f ss
 
 hdr2lst :: String -> [String]
 hdr2lst ('X':'-':'L':'a':'b':'e':'l':':':s) = hdr2lst s
-hdr2lst s = filter (/= "") $ map strip (split "," s)
+hdr2lst s = filter (not . null) $ map strip (split "," s)
 
 lst2hdr :: [String] -> String
 lst2hdr []     = ""
