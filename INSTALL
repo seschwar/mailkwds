@@ -1,0 +1,21 @@
+# Dependencies #
+
+Apart from the usual base libraries this program relies on the
+MissingH package.
+
+# Installation #
+
+## Using Setup.hs ##
+
+    runhaskell Setup configure
+    runhaskell Setup build
+    runhaskell Setup install
+
+## Using cabal-install ##
+
+    cabal install
+
+# Usage #
+
+See `README` file.
+

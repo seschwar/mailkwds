@@ -1,0 +1,19 @@
+name:          x-label
+version:       0.0
+synopsis:      An X-Label email header editor.
+description:
+    x-label allows not only to add but also operate on a existing
+    X-Label email header.  For example it is possible to add or remove
+    certain labels to or from the header.
+category:      Text
+license:       OtherLicense
+license-file:  LICENSE
+author:        Sebastian Schwarz
+maintainer:    seschwar@googlemail.com
+build-type:    Simple
+cabal-version: >= 1.2
+
+executable x-label
+    main-is:       XLabel.hs
+    build-depends: base, MissingH
+    ghc-options:   -O2 -Wall
