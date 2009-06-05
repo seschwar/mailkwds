@@ -1,7 +1,7 @@
 import Control.Monad (when)
 import Data.Char (isSpace)
 import Data.List (isPrefixOf, union, (\\))
-import Data.String.Utils (strip, split)
+import Data.String.Utils (split)
 import System.Environment (getArgs)
 
 main :: IO ()
@@ -34,6 +34,9 @@ rewrite3 f ss ls = ("X-Label: " ++ lst2hdr ls) : rewrite1 f ss
 hdr2lst :: String -> [String]
 hdr2lst ('X':'-':'L':'a':'b':'e':'l':':':s) = hdr2lst s
 hdr2lst s = filter (not . null) $ map strip (split "," s)
+
+strip :: String -> String
+strip = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
 lst2hdr :: [String] -> String
 lst2hdr []     = ""
