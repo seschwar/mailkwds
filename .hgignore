@@ -11,5 +11,6 @@ syntax: glob
 *~
 
 syntax: regexp
+^dist/
 
 # vim: filetype=conf
