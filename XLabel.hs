@@ -1,15 +1,14 @@
 import Control.Monad (when)
+import Data.Char (isSpace)
 import Data.List (isPrefixOf, union, (\\))
 import Data.String.Utils (strip, split)
 import System.Environment (getArgs)
-import System.IO (hGetContents, stdin)
 
 main :: IO ()
 main = do
     args <- getArgs
-    msg  <- hGetContents stdin
-    when (length args < 1) (error "No operation specified.")
-    rewrite (operator (head args) (tail args)) (lines msg) []
+    when (null args) (error "No operation specified.")
+    interact $ unlines . rewrite1 (operator (head args) (tail args)) . lines
 
 operator :: Eq a => String -> [a] -> [a] -> [a]
 operator "add"    a b = a `union` b
@@ -18,19 +17,15 @@ operator "remove" a b = b \\ a
 operator "set"    a _ = a
 operator s        _ _ = error $ "Invalid operation: " ++ s
 
-rewrite :: ([String] -> [String]) -> [String] -> [String] -> IO ()
-rewrite op []      a = putStrLn $ "X-Label: " ++ lst2hdr (op a)
-rewrite op ("":ss) a = do
-    let ls = op a
-    when (length ls > 0) (putStrLn $ "X-Label: " ++ lst2hdr ls)
-    mapM_ putStrLn ("":ss)
-rewrite op (s:ss) a | "X-Label:" `isPrefixOf` s = unfoldHdr op ss (a ++ hdr2lst s)
-rewrite op (s:ss) a = putStrLn s >> rewrite op ss a
+rewrite1 :: ([String] -> [String]) -> [String] -> [String]
+rewrite1 _ []      = []
+rewrite1 _ ("":ss) = "":ss
+rewrite1 f (s:ss)  | "X-Label:" `isPrefixOf` s = rewrite2 f ss [s]
+rewrite1 f (s:ss)  = s : rewrite1 f ss
 
-unfoldHdr :: ([String] -> [String]) -> [String] -> [String] -> IO ()
-unfoldHdr op (s:ss) a | " " `isPrefixOf` s = unfoldHdr op ss (a ++ hdr2lst s)
-unfoldHdr op (s:ss) a | "\t" `isPrefixOf` s = unfoldHdr op ss (a ++ hdr2lst s)
-unfoldHdr op ss     a = rewrite op ss a
+rewrite2 :: ([String] -> [String]) -> [String] -> [String] -> [String]
+rewrite2 f ((c:s):ss) a | isSpace c = rewrite2 f ss ((c:s):a)
+rewrite2 f ss         a = ("X-Label: " ++ (lst2hdr . f . hdr2lst . concat . reverse $ a)) : rewrite1 f ss
 
 hdr2lst :: String -> [String]
 hdr2lst ('X':'-':'L':'a':'b':'e':'l':':':s) = hdr2lst s
