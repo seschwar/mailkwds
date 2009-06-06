@@ -28,14 +28,18 @@ header fields into a single one.
 add
 :   Adds the specified labels to the X-Label header field body.
 
-remove
-:   Removes the specified labels from the X-Label header field body.
+clear
+:   Deletes the whole X-Label header field.
 
 set
 :   Overwrites the X-Label header field body with the specified labels.
 
-clear
-:   Deletes the whole X-Label header field.
+remove
+:   Removes the specified labels from the X-Label header field body.
+
+tidy
+:   Tidies the X-Label header field(s) removing duplicates and odd
+    formatting.
 
 # SEE ALSO
 
