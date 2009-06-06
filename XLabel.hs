@@ -1,9 +1,11 @@
 import Control.Monad (when)
 import Data.Char (isSpace)
-import Data.List (isPrefixOf, stripPrefix, union, (\\))
+import Data.List (intercalate, isPrefixOf, stripPrefix, union, (\\))
 import Data.Maybe (fromJust)
 import Data.String.Utils (split)
 import System.Environment (getArgs)
+
+type Label = String
 
 main :: IO ()
 main = do
@@ -18,27 +20,31 @@ operator "remove" a b = b \\ a
 operator "set"    a _ = a
 operator s        _ _ = error $ "Invalid operation: " ++ s
 
-rewrite1 :: ([String] -> [String]) -> [String] -> [String] -> [String]
-rewrite1 f a ss      | null ss || null (head ss)
-                     = case f . hdr2lst . concat . reverse $ a of
-                            [] -> ss
-                            ls -> ("X-Label: " ++ lst2hdr ls) : ss
-rewrite1 f _ (s:ss)  | "X-Label:" `isPrefixOf` s
-                     = rewrite2 f [fromJust $ stripPrefix "X-Label:" s] ss
-rewrite1 f a (s:ss)  = s : rewrite1 f a ss
+rewrite1 :: ([Label] -> [Label]) -> [Label] -> [String] -> [String]
+rewrite1 f ls ss      | null ss || null (head ss)
+                      = case f . hdr2lst . concat . reverse $ ls of
+                             [] -> ss
+                             l -> ("X-Label: " ++ lst2hdr l) : ss
+rewrite1 f _  (s:ss)  | "X-Label:" `isPrefixOf` s
+                      = rewrite2 f [fromJust $ stripPrefix "X-Label:" s] ss
+rewrite1 f ls (s:ss)  = s : rewrite1 f ls ss
 
-rewrite2 :: ([String] -> [String]) -> [String] -> [String] -> [String]
-rewrite2 f a ((c:cs):ss) | isSpace c = rewrite2 f ((c:cs):a) ss
-rewrite2 f a ss          = rewrite1 f a ss
+rewrite2 :: ([Label] -> [Label]) -> [Label] -> [String] -> [String]
+rewrite2 f ls ((c:cs):ss) | isSpace c = rewrite2 f ((c:cs):ls) ss
+rewrite2 f ls ss          = rewrite1 f ls ss
 
-hdr2lst :: String -> [String]
+hdr2lst :: String -> [Label]
 hdr2lst = filter (not . null) . map strip . split ","
 
-lst2hdr :: [String] -> String
-lst2hdr []     = ""
-lst2hdr (s:[]) = s
-lst2hdr (s:ss) = s ++ ", " ++ lst2hdr ss
+lst2hdr :: [Label] -> String
+lst2hdr = intercalate ", "
 
 strip :: String -> String
-strip = reverse . dropWhile isSpace . reverse . dropWhile isSpace
+strip = rstrip . lstrip
+
+lstrip :: String -> String
+lstrip = dropWhile isSpace
+
+rstrip :: String -> String
+rstrip = reverse . lstrip . reverse
 
