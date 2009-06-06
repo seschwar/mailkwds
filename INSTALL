@@ -1,7 +1,7 @@
 # Dependencies #
 
-Apart from the usual base libraries this program relies on the
-MissingH package.
+Apart from the usual base libraries this program has no further
+dependencies.
 
 # Installation #
 

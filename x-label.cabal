@@ -15,5 +15,5 @@ cabal-version: >= 1.2
 
 executable x-label
     main-is:       XLabel.hs
-    build-depends: base, MissingH
+    build-depends: base
     ghc-options:   -O2 -Wall
