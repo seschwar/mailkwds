@@ -6,6 +6,8 @@ Description:
     x-label allows not only to add but also operate on a existing
     X-Label email header.  For example it is possible to add or remove
     certain labels to or from the header.
+Homepage:           http://bitbucket.org/seschwar/x-label/
+Bug-reports:        http://bitbucket.org/seschwar/x-label/issues/
 License:            OtherLicense
 Author:             Sebastian Schwarz <seschwar@googlemail.com>
 Maintainer:         Sebastian Schwarz <seschwar@googlemail.com>
@@ -14,6 +16,10 @@ build-type:         Simple
 extra-source-files: x-label.1.md
 extra-tmp-files:    x-label.1
 license-file:       LICENSE
+
+source-repository head
+  type:     mercurial
+  location: http://bitbucket.org/seschwar/x-label/
 
 executable x-label
     main-is:       XLabel.hs

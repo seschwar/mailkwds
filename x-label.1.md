@@ -45,3 +45,5 @@ tidy
 
 `formail`(1).
 
+Homepage: <http://bitbucket.org/seschwar/x-label/>
+
