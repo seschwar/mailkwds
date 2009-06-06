@@ -1,21 +1,21 @@
-# Dependencies #
+# Dependencies
 
 Apart from the usual base libraries this program has no further
 dependencies.
 
-# Installation #
+# Installation
 
-## Using Setup.hs ##
+## Using Setup.hs
 
     runhaskell Setup configure
     runhaskell Setup build
     runhaskell Setup install
 
-## Using cabal-install ##
+## Using cabal-install
 
     cabal install
 
-# Usage #
+# Usage
 
-See `README` file.
+See the x-label manual page for notes on the usage.
 

@@ -3,6 +3,7 @@
 #
 
 syntax: glob
+*.1
 *.hi
 *.o
 *.orig
