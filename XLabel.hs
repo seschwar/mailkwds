@@ -1,6 +1,7 @@
 import Control.Monad (when)
 import Data.Char (isSpace)
-import Data.List (isPrefixOf, union, (\\))
+import Data.List (isPrefixOf, stripPrefix, union, (\\))
+import Data.Maybe (fromJust)
 import Data.String.Utils (split)
 import System.Environment (getArgs)
 
@@ -22,7 +23,8 @@ rewrite1 f a ss      | null ss || null (head ss)
                      = case f . hdr2lst . concat . reverse $ a of
                             [] -> ss
                             ls -> ("X-Label: " ++ lst2hdr ls) : ss
-rewrite1 f _ (s:ss)  | "X-Label:" `isPrefixOf` s = rewrite2 f [s] ss
+rewrite1 f _ (s:ss)  | "X-Label:" `isPrefixOf` s
+                     = rewrite2 f [fromJust $ stripPrefix "X-Label:" s] ss
 rewrite1 f a (s:ss)  = s : rewrite1 f a ss
 
 rewrite2 :: ([String] -> [String]) -> [String] -> [String] -> [String]
@@ -30,14 +32,13 @@ rewrite2 f a ((c:cs):ss) | isSpace c = rewrite2 f ((c:cs):a) ss
 rewrite2 f a ss          = rewrite1 f a ss
 
 hdr2lst :: String -> [String]
-hdr2lst ('X':'-':'L':'a':'b':'e':'l':':':s) = hdr2lst s
-hdr2lst s = filter (not . null) $ map strip (split "," s)
-
-strip :: String -> String
-strip = reverse . dropWhile isSpace . reverse . dropWhile isSpace
+hdr2lst = filter (not . null) . map strip . split ","
 
 lst2hdr :: [String] -> String
 lst2hdr []     = ""
 lst2hdr (s:[]) = s
 lst2hdr (s:ss) = s ++ ", " ++ lst2hdr ss
+
+strip :: String -> String
+strip = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
