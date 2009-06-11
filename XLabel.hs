@@ -41,7 +41,7 @@ rewrite f acc []        = rewrite2 f acc []
 rewrite f acc ss@("":_) = rewrite2 f acc ss
 rewrite f acc (s:ss)    = case stripPrefix "X-Label:" s of
                                Nothing -> s : rewrite f acc ss
-                               Just s' -> rewrite1 f (acc ++ ", " ++ s') ss
+                               Just s' -> rewrite1 f (acc ++ " " ++ s') ss
 
 -- | Unfold the header field body.
 rewrite1 :: ([Label] -> [Label]) -> String -> [String] -> [String]
@@ -56,12 +56,13 @@ rewrite2 f acc ss = case f $ hdr2lst acc of
 
 -- | Parses the 'String' of a comma separated header field body to a list.
 hdr2lst :: String -> [Label]
-hdr2lst = filter (not . null) . map strip . split (== ',')
+--hdr2lst = filter (not . null) . map strip . split (== ',')
+hdr2lst = words
 
 -- | Formats a list of 'Label's so that they can be included as the body of a
 -- header field.
 lst2hdr :: [Label] -> String
-lst2hdr = intercalate ", "
+lst2hdr = intercalate " "
 
 -- | Splits a list at every position where the given predicate is true dropping
 -- the delimiting element.

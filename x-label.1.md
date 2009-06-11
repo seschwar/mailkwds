@@ -17,11 +17,9 @@ for the X-Label header field, modifies it according to the specified
 commands and outputs the modified message with the new X-Label header
 field at the bottom of the email header section to the standard output.
 
-This is quite useful for adding labels with a MDA by piping mail
-though x-label.
-
 x-label removes any duplicate labels and combines multiple X-Label
-header fields into a single one.
+header fields, which are assumed to have whitespace separated entries
+as labels, into a single one.
 
 # COMMANDS
 
