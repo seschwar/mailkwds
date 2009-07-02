@@ -56,7 +56,7 @@ rewrite2 f acc ss = case f $ hdr2lst acc of
 
 -- | Parses the 'String' of a comma separated header field body to a list.
 hdr2lst :: String -> [Label]
---hdr2lst = filter (not . null) . map stripWhile isSpace . split (== ',')
+--hdr2lst = filter (not . null) . map stripWhile isSpace . splitOn (== ',')
 hdr2lst = words
 
 -- | Formats a list of 'Label's so that they can be included as the body of a
@@ -66,11 +66,15 @@ lst2hdr = intercalate " "
 
 -- | Splits a list at every position where @prd@ is 'True' dropping that
 -- element.
-split :: (a -> Bool) -> [a] -> [[a]]
-split prd xs = case dropWhile prd xs of
+splitOn :: (a -> Bool) -> [a] -> [[a]]
+splitOn prd xs = case dropWhile prd xs of
                     []  -> []
-                    xs' -> x : split prd xs''
+                    xs' -> x : splitOn prd xs''
                         where (x, xs'') = break prd xs'
+
+-- | Splits a 'String' on all whitespace, like 'words'
+split :: String -> [String]
+split = splitOn isSpace
 
 -- | Strips all elements for which @prd@ is 'True' from the beginning and the
 -- end of a list.
