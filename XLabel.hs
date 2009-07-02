@@ -34,6 +34,14 @@ operator "set"    a _ = a
 operator "tidy"   _ b = b
 operator s        _ _ = error $ "Invalid command: " ++ s
 
+-- | Appends 'Strings' beginning with a whitespace character to the
+-- previous 'String' in the list.
+unfldHdr :: [String] -> [String]
+unfldHdr = foldr f []
+    where
+        f x (x'@(y:_):xs) | isSpace y = (x ++ x'):xs
+        f x xs                        = x:xs
+
 -- | Rewrites the given message header by applying the given function to the
 -- existing X-Label header fields.  The resulting new header field will be
 -- inserted at the end.
