@@ -23,5 +23,5 @@ source-repository head
 
 executable x-label
     main-is:       XLabel.hs
-    build-depends: base
+    build-depends: base < 5, split < 0.2
     ghc-options:   -O2 -Wall

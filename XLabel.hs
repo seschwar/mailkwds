@@ -10,6 +10,7 @@ module Main where
 import Control.Monad (when)
 import Data.Char (isSpace)
 import Data.List (intercalate, stripPrefix, union, (\\))
+import Data.List.Split (keepDelimsL, split, whenElt)
 import System.Environment (getArgs)
 import Utils (appendWhile)
 
@@ -39,13 +40,12 @@ operator s        _ _ = error $ "Invalid command: " ++ s
 -- | Appends 'String's beginning with a whitespace character to the
 -- previous 'String' in the list.
 unfldHdr :: [String] -> [String]
-unfldHdr = appendWhile $ const $ \x -> isSpace . head $ x
+unfldHdr = appendWhile $ const $ isSpace . head
 
 -- | Folds headers longer than 78 character in multiple lines.
 fldHdr :: [String] -> [String]
-fldHdr = id
---fldHdr = concatMap $ appendWhile f . map ((:) ' ') . words
---    where f x y = length x + length y <= 78
+fldHdr = concatMap $ appendWhile f . (split . keepDelimsL . whenElt $ isSpace)
+    where f x y = length x + length y <= 78
 
 -- | Rewrites the given message header by applying the given function to the
 -- existing X-Label header fields.  The resulting new header field will be
@@ -53,7 +53,7 @@ fldHdr = id
 rewrite :: ([Label] -> [Label]) -> String -> [String] -> [String]
 rewrite f acc []     = case f $ hdr2lst acc of
                             [] -> []
-                            ls -> ("X-Label: " ++ lst2hdr ls) : []
+                            ls -> ["X-Label: " ++ lst2hdr ls]
 rewrite f acc (s:ss) = case stripPrefix "X-Label:" s of
                             Nothing -> s : rewrite f acc ss
                             Just s' -> rewrite f (acc ++ " " ++ s') ss
