@@ -11,6 +11,7 @@ import Control.Monad (when)
 import Data.Char (isSpace)
 import Data.List (intercalate, stripPrefix, union, (\\))
 import System.Environment (getArgs)
+import Utils (appendWhile)
 
 -- | A message 'Label' is a 'String'.
 type Label = String
@@ -38,13 +39,13 @@ operator s        _ _ = error $ "Invalid command: " ++ s
 -- | Appends 'String's beginning with a whitespace character to the
 -- previous 'String' in the list.
 unfldHdr :: [String] -> [String]
-unfldHdr (x:x'@(h:_):xs) | isSpace h = unfldHdr $ (x ++ x') : xs
-unfldHdr (x:xs)                      = x : unfldHdr xs
-unfldHdr []                          = []
+unfldHdr = appendWhile $ const $ \x -> isSpace . head $ x
 
 -- | Folds headers longer than 78 character in multiple lines.
 fldHdr :: [String] -> [String]
 fldHdr = id
+--fldHdr = concatMap $ appendWhile f . map ((:) ' ') . words
+--    where f x y = length x + length y <= 78
 
 -- | Rewrites the given message header by applying the given function to the
 -- existing X-Label header fields.  The resulting new header field will be

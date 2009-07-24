@@ -9,6 +9,13 @@ module Utils where
 
 import Data.Char (isSpace)
 
+-- | Appends an element in a 'List' to the previous one if @prd@ is 'True'.
+appendWhile :: ([a] -> [a] -> Bool) -> [[a]] -> [[a]]
+appendWhile _   []                   = []
+appendWhile _   [x]                  = [x]
+appendWhile prd (x:x':xs) | prd x x' = appendWhile prd $ (x ++ x') : xs
+appendWhile prd (x:x':xs)            = x : appendWhile prd (x':xs)
+
 -- | Splits a list at every position where @prd@ is 'True' dropping that
 -- element.
 splitOn :: (a -> Bool) -> [a] -> [[a]]
