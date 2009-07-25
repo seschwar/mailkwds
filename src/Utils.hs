@@ -10,11 +10,11 @@ module Utils where
 import Data.Char (isSpace)
 
 -- | Appends an element in a 'List' to the previous one if @prd@ is 'True'.
-appendWhile :: ([a] -> [a] -> Bool) -> [[a]] -> [[a]]
-appendWhile _   []                   = []
-appendWhile _   [x]                  = [x]
-appendWhile prd (x:x':xs) | prd x x' = appendWhile prd $ (x ++ x') : xs
-appendWhile prd (x:x':xs)            = x : appendWhile prd (x':xs)
+catWhile :: ([a] -> [a] -> Bool) -> [[a]] -> [[a]]
+catWhile _   []                   = []
+catWhile _   [x]                  = [x]
+catWhile prd (x:x':xs) | prd x x'  = catWhile prd $ (x ++ x') : xs
+                       | otherwise = x : catWhile prd (x':xs)
 
 -- | Strips all elements for which @prd@ is 'True' from the beginning and the
 -- end of a list.

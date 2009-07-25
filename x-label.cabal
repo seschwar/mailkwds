@@ -13,7 +13,7 @@ Author:             Sebastian Schwarz <seschwar@googlemail.com>
 Maintainer:         Sebastian Schwarz <seschwar@googlemail.com>
 cabal-version:      >= 1.2
 build-type:         Simple
-extra-source-files: x-label.1.md
+extra-source-files: README
 extra-tmp-files:    x-label.1
 license-file:       LICENSE
 
@@ -22,6 +22,8 @@ source-repository head
   location: http://bitbucket.org/seschwar/x-label/
 
 executable x-label
-    main-is:       XLabel.hs
-    build-depends: base < 5, containers < 0.3, mtl >= 1.1 && < 2.0, split < 0.2
-    ghc-options:   -O2 -Wall -hide-package monads-fd
+    build-depends:  base < 5, containers < 0.3, mtl >= 1.1 && < 2.0,
+                    split < 0.2
+    hs-source-dirs: src
+    main-is:        Main.hs
+    ghc-options:    -O2 -Wall -hide-package monads-fd
