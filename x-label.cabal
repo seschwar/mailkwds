@@ -23,5 +23,5 @@ source-repository head
 
 executable x-label
     main-is:       XLabel.hs
-    build-depends: base < 5, split < 0.2
-    ghc-options:   -O2 -Wall
+    build-depends: base < 5, containers < 0.3, mtl >= 1.1 && < 2.0, split < 0.2
+    ghc-options:   -O2 -Wall -hide-package monads-fd
