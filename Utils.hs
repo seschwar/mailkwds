@@ -16,18 +16,6 @@ appendWhile _   [x]                  = [x]
 appendWhile prd (x:x':xs) | prd x x' = appendWhile prd $ (x ++ x') : xs
 appendWhile prd (x:x':xs)            = x : appendWhile prd (x':xs)
 
--- | Splits a list at every position where @prd@ is 'True' dropping that
--- element.
-splitOn :: (a -> Bool) -> [a] -> [[a]]
-splitOn prd xs = case dropWhile prd xs of
-                    []  -> []
-                    xs' -> x : splitOn prd xs''
-                        where (x, xs'') = break prd xs'
-
--- | Splits a 'String' on all whitespace, like 'words'
-split :: String -> [String]
-split = splitOn isSpace
-
 -- | Strips all elements for which @prd@ is 'True' from the beginning and the
 -- end of a list.
 stripWhile :: (a -> Bool) -> [a] -> [a]
