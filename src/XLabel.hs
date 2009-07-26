@@ -34,10 +34,7 @@ unfldHdr = catWhile $ const $ isSpace . head
 -- are not empty.
 rewriteHdrs :: Map String String -> ([Label] -> [Label]) -> [String] -> [String]
 rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
-                     in case f ls of
-                             []  -> catMaybes hs'
-                             ls' -> catMaybes hs'
-                                    ++ ["X-Label: " ++ toHeader " " ls']
+                     in catMaybes $ hs' ++ [toHeader "X-Label" " " (f ls)]
 
 -- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
@@ -55,8 +52,9 @@ toLabels = split . dropBlanks . dropDelims . onSublist
 
 -- | Formats a list of 'Label's so that they can be included as the body of a
 -- header field.
-toHeader :: String -> [Label] -> String
-toHeader = intercalate
+toHeader :: String -> String -> [Label] -> Maybe String
+toHeader _   _   [] = Nothing
+toHeader hdr sep ls = Just $ hdr ++ ": " ++ intercalate sep ls
 
 -- | Folds headers longer than 78 character in multiple lines.
 fldHdr :: [String] -> [String]
