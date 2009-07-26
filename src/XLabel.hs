@@ -5,7 +5,7 @@
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module XLabel (rewriteMsg) where
+module XLabel where
 
 import Control.Monad (mapM)
 import Control.Monad.Writer.Lazy (Writer, runWriter, tell)

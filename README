@@ -13,7 +13,7 @@ x-label *command* [*label*]...
 # DESCRIPTION
 
 x-label reads a single email message from standard input, searches
-for the X-Label header field, modifies it according to the specified
+for X-Label header fields, modifies them according to the specified
 commands and outputs the modified message with the new X-Label header
 field at the bottom of the email header section to the standard output.
 

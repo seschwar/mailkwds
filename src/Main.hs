@@ -5,7 +5,7 @@
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module Main (main) where
+module Main where
 
 import Control.Monad (when)
 import Data.List (union, (\\))
