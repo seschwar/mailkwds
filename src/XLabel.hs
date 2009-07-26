@@ -15,26 +15,28 @@ import Data.List.Split (dropBlanks, dropDelims, keepDelimsL, onSublist, split,
                         whenElt)
 import Data.Map (Map, lookup)
 import Data.Maybe (Maybe(..), catMaybes)
-import Utils (catWhile)
+import Utils (concatWhile)
 
 -- | A message 'Label' is a 'String'.
 type Label = String
 
 -- | Rewrites an email message consisting of a tuple heades and body.
-rewriteMsg :: Map String String -> ([Label] -> [Label]) -> [String] -> [String]
+rewriteMsg :: Map String String -> ([Label] -> Maybe String)
+              -> [String] -> [String]
 rewriteMsg m f msg = let (h, b) = break (== []) msg
-                     in (fldHdr . rewriteHdrs m f . unfldHdr) h ++ b
+                     in (foldHeaders . rewriteHdrs m f . unfoldHeaders) h ++ b
 
 -- | Appends 'String's beginning with a whitespace character to the
 -- previous 'String' in the list.
-unfldHdr :: [String] -> [String]
-unfldHdr = catWhile $ const $ isSpace . head
+unfoldHeaders :: [String] -> [String]
+unfoldHeaders = concatWhile $ const $ isSpace . head
 
 -- | Rewrite the headers of a message by appending the extraced 'Label's if they
 -- are not empty.
-rewriteHdrs :: Map String String -> ([Label] -> [Label]) -> [String] -> [String]
+rewriteHdrs :: Map String String -> ([Label] -> Maybe String)
+               -> [String] -> [String]
 rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
-                     in catMaybes $ hs' ++ [toHeader "X-Label" " " (f ls)]
+                     in catMaybes $ hs' ++ [f ls]
 
 -- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
@@ -50,14 +52,15 @@ extractLabels m h = case break (== ':') h of
 toLabels :: String -> String -> [Label]
 toLabels = split . dropBlanks . dropDelims . onSublist
 
+-- | Folds headers longer than 78 character in multiple lines.
+foldHeaders :: [String] -> [String]
+foldHeaders = concatMap $ concatWhile f
+    . (split . keepDelimsL . whenElt $ isSpace)
+    where f x y = length x + length y <= 78
+
 -- | Formats a list of 'Label's so that they can be included as the body of a
 -- header field.
 toHeader :: String -> String -> [Label] -> Maybe String
 toHeader _   _   [] = Nothing
 toHeader hdr sep ls = Just $ hdr ++ ": " ++ intercalate sep ls
-
--- | Folds headers longer than 78 character in multiple lines.
-fldHdr :: [String] -> [String]
-fldHdr = concatMap $ catWhile f . (split . keepDelimsL . whenElt $ isSpace)
-    where f x y = length x + length y <= 78
 

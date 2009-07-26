@@ -11,7 +11,7 @@ import Control.Monad (when)
 import Data.List (union, (\\))
 import Data.Map (fromList)
 import System.Environment (getArgs)
-import XLabel (rewriteMsg)
+import XLabel (rewriteMsg, toHeader)
 
 -- | Rewrites the X-Label header fields from a message read from stdin to
 -- stdout.
@@ -20,7 +20,8 @@ main = do
     args <- getArgs
     when (null args) (error "No command specified.")
     let m = fromList [("X-Label", " ")]
-    interact $ unlines . rewriteMsg m (operator (head args) (tail args)) . lines
+    let f = toHeader "X-Label" " " . operator (head args) (tail args)
+    interact $ unlines . rewriteMsg m f . lines
 
 -- | Chooses the operator to apply to the 'Label's in the mail and the ones
 -- specified as command line arguments.
