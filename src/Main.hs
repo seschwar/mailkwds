@@ -8,6 +8,7 @@
 module Main where
 
 import Control.Monad (when)
+import Data.Char (toLower)
 import Data.List (union, (\\))
 import Data.Map (fromList)
 import System.Environment (getArgs)
@@ -19,7 +20,7 @@ main :: IO ()
 main = do
     args <- getArgs
     when (null args) (error "No command specified.")
-    let m = fromList [("X-Label", " ")]
+    let m = fromList [(map toLower "X-Label", " ")]
     let f = toHeader "X-Label" " " . operator (head args) (tail args)
     interact $ unlines . rewriteMsg m f . lines
 

@@ -9,13 +9,13 @@ module XLabel where
 
 import Control.Monad (mapM)
 import Control.Monad.Writer.Lazy (Writer, runWriter, tell)
-import Data.Char (isSpace)
+import Data.Char (isSpace, toLower)
 import Data.List (intercalate)
 import Data.List.Split (dropBlanks, dropDelims, keepDelimsL, onSublist, split,
                         whenElt)
 import Data.Map (Map, lookup)
 import Data.Maybe (Maybe(..), catMaybes)
-import Utils (concatWhile)
+import Utils (concatWhile, strip)
 
 -- | A message 'Label' is a 'String'.
 type Label = String
@@ -42,7 +42,7 @@ rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
 extractLabels :: Map String String -> String -> Writer [Label] (Maybe String)
 extractLabels m h = case break (== ':') h of
-                         (n, ':':b) -> case Data.Map.lookup n m of
+                         (n, ':':b) -> case Data.Map.lookup (map toLower n) m of
                                             Nothing  -> return $ Just h
                                             Just sep -> tell (toLabels sep b)
                                                         >> return Nothing
@@ -50,7 +50,8 @@ extractLabels m h = case break (== ':') h of
 
 -- | Parses the 'String' of a comma separated header field body to a list.
 toLabels :: String -> String -> [Label]
-toLabels = split . dropBlanks . dropDelims . onSublist
+toLabels x = filter (/= "") . map strip
+    . (split . dropBlanks . dropDelims . onSublist $ x)
 
 -- | Folds headers longer than 78 character in multiple lines.
 foldHeaders :: [String] -> [String]
