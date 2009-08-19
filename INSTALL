@@ -22,7 +22,7 @@ None of the procedures above installs the manual page, as Cabal
 currently has no convenient way to do so.  Instead run the following
 command to generate it from the README.
 
-    pandoc -sS -f markdown -t man -o - README | gzip > x-label.1.gz
+    pandoc -sS -f markdown -t man -o x-label.1 README
 
 Copy the resulting file to `/usr/share/man/man1` or somewhere else
 in you `MANPATH`.

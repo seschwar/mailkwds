@@ -8,18 +8,18 @@ x-label -- X-Label email header editor
 
 # SYNOPSIS
 
-x-label *command* [*label*]...
+`x-label` *command* [*label*]...
 
 # DESCRIPTION
 
-x-label reads a single email message from standard input, searches
+`x-label` reads a single email message from standard input, searches
 for X-Label header fields, modifies them according to the specified
 commands and outputs the modified message with the new X-Label header
 field at the bottom of the email header section to the standard output.
 
-x-label removes any duplicate labels and combines multiple X-Label
-header fields, which are assumed to have whitespace separated entries
-as labels, into a single one.
+`x-label` automatically removes any duplicate labels and combines
+multiple X-Label header fields.  The labels in the header field body
+are assumed to be simple strings separated by whitespace.
 
 # COMMANDS
 
@@ -41,7 +41,7 @@ tidy
 
 # SEE ALSO
 
-`formail`(1).
+`formail`(1), `reformail`(1).
 
 Homepage: <http://bitbucket.org/seschwar/x-label/>
 
