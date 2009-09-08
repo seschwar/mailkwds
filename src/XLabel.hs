@@ -50,7 +50,7 @@ extractLabels m h = case break (== ':') h of
 
 -- | Parses the 'String' of a comma separated header field body to a list.
 toLabels :: String -> String -> [Label]
-toLabels x = filter (not . nil) . map strip
+toLabels x = filter (not . null) . map strip
     . (split . dropBlanks . dropDelims . onSublist $ x)
 
 -- | Folds headers longer than 78 character in multiple lines.
