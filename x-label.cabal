@@ -13,7 +13,7 @@ Author:             Sebastian Schwarz <seschwar@googlemail.com>
 Maintainer:         Sebastian Schwarz <seschwar@googlemail.com>
 cabal-version:      >= 1.2
 build-type:         Simple
-extra-source-files: README, src/*.hs, test/*.hs
+extra-source-files: INSTALL, README, src/*.hs, test/*.hs
 license-file:       LICENSE
 
 source-repository head
