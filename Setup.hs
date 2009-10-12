@@ -7,6 +7,6 @@ import System.Cmd (rawSystem)
 
 main = defaultMainWithHooks simpleUserHooks { runTests = runTests' }
 
-runTests' _ _ _ lbi = rawSystem testprog [] >> return ()
-    where testprog = (buildDir lbi) </> "test" </> "test"
+runTests' _ _ _ lbi = rawSystem ((buildDir lbi) </> "test" </> "test")
+                      ["--maximum-generated-tests=1000"] >> return ()
 
