@@ -15,7 +15,7 @@ import Data.List.Split (dropBlanks, dropDelims, keepDelimsL, onSublist, split,
                         whenElt)
 import Data.Map (Map, lookup)
 import Data.Maybe (Maybe(..), catMaybes)
-import Utils (concatWhile, strip)
+import Utils (mconscat, lstrip, rstrip, strip)
 
 -- | A message 'Label' is a 'String'.
 type Label = String
@@ -29,7 +29,12 @@ rewriteMsg m f msg = let (h, b) = break null msg
 -- | Appends 'String's beginning with a whitespace character to the
 -- previous 'String' in the list.
 unfoldHeaders :: [String] -> [String]
-unfoldHeaders = concatWhile $ const $ isSpace . head
+unfoldHeaders = mconscat prd rstrip (pad . lstrip)
+    where prd _ ""    = False
+          prd _ (x:_) = isSpace x
+
+          pad "" = ""
+          pad x  = ' ':x
 
 -- | Rewrite the headers of a message by appending the extraced 'Label's if they
 -- are not empty.
@@ -55,8 +60,8 @@ toLabels x = filter (not . null) . map strip
 
 -- | Folds headers longer than 78 character in multiple lines.
 foldHeaders :: [String] -> [String]
-foldHeaders = concatMap $ concatWhile f
-    . (split . keepDelimsL . whenElt $ isSpace)
+foldHeaders = concatMap $ mconscat f id id
+        . (split . keepDelimsL . whenElt $ isSpace)
     where f x y = length x + length y <= 78
 
 -- | Formats a list of 'Label's so that they can be included as the body of a

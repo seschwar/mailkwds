@@ -8,13 +8,15 @@
 module Utils where
 
 import Data.Char (isSpace)
+import Data.Monoid (Monoid, mappend, mempty)
 
--- | Appends an element in a 'List' to the previous one if @prd@ is 'True'.
-concatWhile :: ([a] -> [a] -> Bool) -> [[a]] -> [[a]]
-concatWhile _   []                   = []
-concatWhile _   [x]                  = [x]
-concatWhile prd (x:x':xs) | prd x x'  = concatWhile prd $ (x ++ x') : xs
-                          | otherwise = x : concatWhile prd (x':xs)
+mconscat :: Monoid m => (m -> m -> Bool) -> (m -> m) -> (m -> m) -> [m] -> [m]
+mconscat prd f g = foldr h []
+    where h x xs = let (x', xs') = partition x xs
+                   in  f x `mappend` g x' : xs'
+
+          partition x (x':xs) | prd x x' = (x', xs)
+          partition _ xs                 = (mempty, xs)
 
 -- | Strips all elements for which @prd@ is 'True' from the beginning and the
 -- end of a list.

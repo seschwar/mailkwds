@@ -36,8 +36,8 @@ tests =
     ]
 
 prop_cat1 xs = (not . null) (xs :: [[Int]]) ==>
-    concatWhile (const $ const True) xs == [concat xs]
-prop_cat2 xs = concatWhile (const $ const False) xs == xs
+    mconscat (const $ const True) id id xs == [concat xs]
+prop_cat2 xs = mconscat (const $ const False) id id xs == xs
 
 prop_fold1 xs = all (not . null) xs ==>
     (unfoldHeaders . unfoldHeaders $ xs) == unfoldHeaders xs
