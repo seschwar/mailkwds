@@ -23,8 +23,8 @@ type Label = String
 -- | Rewrites an email message consisting of a tuple heades and body.
 rewriteMsg :: Map String String -> ([Label] -> Maybe String)
               -> [String] -> [String]
-rewriteMsg m f msg = let (h, b) = break (== []) msg
-                     in (foldHeaders . rewriteHdrs m f . unfoldHeaders) h ++ b
+rewriteMsg m f msg = let (h, b) = break null msg
+                     in  (foldHeaders . rewriteHdrs m f . unfoldHeaders) h ++ b
 
 -- | Appends 'String's beginning with a whitespace character to the
 -- previous 'String' in the list.
@@ -36,7 +36,7 @@ unfoldHeaders = concatWhile $ const $ isSpace . head
 rewriteHdrs :: Map String String -> ([Label] -> Maybe String)
                -> [String] -> [String]
 rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
-                     in catMaybes $ hs' ++ [f ls]
+                     in  catMaybes $ hs' ++ [f ls]
 
 -- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.

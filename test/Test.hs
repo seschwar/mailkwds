@@ -7,7 +7,7 @@
 
 module Main where
 
-import Control.Monad (liftM2)
+import Control.Applicative (liftA2)
 import Data.Char (isSpace)
 import Data.List (all)
 import Test.Framework (Test, defaultMain, testGroup)
@@ -49,7 +49,7 @@ prop_fold4 xs = all (not . null) xs ==>
     (unfoldHeaders . foldHeaders . unfoldHeaders . foldHeaders $ xs)
     == (unfoldHeaders . foldHeaders $ xs)
 prop_fold5 xs = all f $ foldHeaders xs
-    where f = liftM2 (||) ((<= 78) . length) (not . any isSpace . lstrip)
+    where f = liftA2 (||) ((<= 78) . length) (not . any isSpace . lstrip)
 prop_fold6 xs = all (not . null) xs ==>
     all (not . isSpace) . map head $ unfoldHeaders xs
 

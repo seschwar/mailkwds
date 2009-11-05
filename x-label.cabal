@@ -14,7 +14,7 @@ Maintainer:         Sebastian Schwarz <seschwar@googlemail.com>
 cabal-version:      >= 1.2
 build-type:         Simple
 --data-files:         x-label.1
-extra-source-files: INSTALL, README, src/*.hs, test/*.hs
+extra-source-files: INSTALL, README
 license-file:       LICENSE
 
 source-repository head
@@ -34,6 +34,7 @@ executable test
         buildable:     False
     hs-source-dirs: src, test
     main-is:        Test.hs
+    other-modules:  Utils, XLabel
     cpp-options:    -DTEST
     ghc-options:    -O2 -Wall -hide-all-packages
 
@@ -42,5 +43,6 @@ executable x-label
                     mtl >= 1.1 && < 1.2, split < 0.2
     hs-source-dirs: src
     main-is:        Main.hs
+    other-modules:  Utils, XLabel
     ghc-options:    -O2 -Wall -hide-all-packages
 
