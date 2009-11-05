@@ -10,6 +10,9 @@ module Utils where
 import Data.Char (isSpace)
 import Data.Monoid (Monoid, mappend, mempty)
 
+-- | @mconscat prd f g@ catenates to successive elements in a list if @prd@ of
+-- these two elements is 'True'.  @f@ and @g@ are applied to the first and
+-- second element respectively before they are 'mappend'ed.
 mconscat :: Monoid m => (m -> m -> Bool) -> (m -> m) -> (m -> m) -> [m] -> [m]
 mconscat prd f g = foldr h []
     where h x xs = let (x', xs') = partition x xs

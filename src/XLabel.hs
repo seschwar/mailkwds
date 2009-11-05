@@ -17,17 +17,25 @@ import Data.Map (Map, lookup)
 import Data.Maybe (Maybe(..), catMaybes)
 import Utils (mconscat, lstrip, rstrip, strip)
 
--- | A message 'Label' is a 'String'.
+-- | A message 'Label' is just a 'String'.
 type Label = String
 
--- | Rewrites an email message consisting of a tuple heades and body.
+-- | Rewrites an email message by using 'rewriteHdrs' on its unfolded header.
 rewriteMsg :: Map String String -> ([Label] -> Maybe String)
               -> [String] -> [String]
 rewriteMsg m f msg = let (h, b) = break null msg
                      in  (foldHeaders . rewriteHdrs m f . unfoldHeaders) h ++ b
 
--- | Appends 'String's beginning with a whitespace character to the
--- previous 'String' in the list.
+-- | Rewrite the headers of a message by appending the extraced and modified
+-- 'Label's if they are not empty.
+rewriteHdrs :: Map String String -> ([Label] -> Maybe String)
+               -> [String] -> [String]
+rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
+                     in  catMaybes $ hs' ++ [f ls]
+
+-- | Appends a 'String' beginning with a whitespace character to the previous
+-- 'String' in the list removing any superfluous intermediate whitespace
+-- characters.
 unfoldHeaders :: [String] -> [String]
 unfoldHeaders = mconscat prd rstrip (pad . lstrip)
     where prd _ ""    = False
@@ -36,12 +44,11 @@ unfoldHeaders = mconscat prd rstrip (pad . lstrip)
           pad "" = ""
           pad x  = ' ':x
 
--- | Rewrite the headers of a message by appending the extraced 'Label's if they
--- are not empty.
-rewriteHdrs :: Map String String -> ([Label] -> Maybe String)
-               -> [String] -> [String]
-rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
-                     in  catMaybes $ hs' ++ [f ls]
+-- | Folds headers longer than 78 character in multiple lines.
+foldHeaders :: [String] -> [String]
+foldHeaders = concatMap $ mconscat f id id
+        . (split . keepDelimsL . whenElt $ isSpace)
+    where f x y = length x + length y <= 78
 
 -- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
@@ -53,19 +60,13 @@ extractLabels m h = case break (== ':') h of
                                                         >> return Nothing
                          _          -> return $ Just h
 
--- | Parses the 'String' of a comma separated header field body to a list.
+-- | Splits the body of the given header field on the given substring into
+-- 'Label's.
 toLabels :: String -> String -> [Label]
 toLabels x = filter (not . null) . map strip
     . (split . dropBlanks . dropDelims . onSublist $ x)
 
--- | Folds headers longer than 78 character in multiple lines.
-foldHeaders :: [String] -> [String]
-foldHeaders = concatMap $ mconscat f id id
-        . (split . keepDelimsL . whenElt $ isSpace)
-    where f x y = length x + length y <= 78
-
--- | Formats a list of 'Label's so that they can be included as the body of a
--- header field.
+-- | Produces an email header field of the given name and the 'Label's.
 toHeader :: String -> String -> [Label] -> Maybe String
 toHeader _   _   [] = Nothing
 toHeader hdr sep ls = Just $ hdr ++ ": " ++ intercalate sep ls

@@ -11,7 +11,7 @@ main = defaultMainWithHooks simpleUserHooks
     , hookedPreProcessors = [("md", ppPandoc), ("text", ppPandoc)]
     }
 
-runTests' _ _ _ lbi = rawSystem ((buildDir lbi) </> "test" </> "test")
+runTests' _ _ _ lbi = rawSystem (buildDir lbi </> "test" </> "test")
                       ["--maximum-generated-tests=1000"] >> return ()
 
 ppPandoc _ _ = PreProcessor
