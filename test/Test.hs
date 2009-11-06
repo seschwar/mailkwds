@@ -49,7 +49,7 @@ prop_fold4 xs = all (not . null) xs ==>
     (unfoldHeaders . foldHeaders . unfoldHeaders . foldHeaders $ xs)
     == (unfoldHeaders . foldHeaders $ xs)
 prop_fold5 xs = all f $ foldHeaders xs
-    where f = liftA2 (||) ((<= 78) . length) (not . any isSpace . lstrip)
+    where f = liftA2 (||) ((<= 78) . length) (not . any isSpace . stripStart)
 prop_fold6 xs = all (not . null) xs ==>
     all (not . isSpace) . map head $ unfoldHeaders xs
 

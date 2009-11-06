@@ -21,29 +21,26 @@ mconscat prd f g = foldr h []
           partition x (x':xs) | prd x x' = (x', xs)
           partition _ xs                 = (mempty, xs)
 
--- | Strips all elements for which @prd@ is 'True' from the beginning and the
--- end of a list.
-stripWhile :: (a -> Bool) -> [a] -> [a]
-stripWhile prd = rstripWhile prd . lstripWhile prd
+-- | Drops all elements for which the given predicate is 'True' from the end of
+-- the list.
+dropWhileEnd :: (a -> Bool) -> [a] -> [a]
+dropWhileEnd prd = reverse . dropWhile prd . reverse
 
--- | Strips all elements for which @prd@ is 'True' from the beginning of a list.
-lstripWhile :: (a -> Bool) -> [a] -> [a]
-lstripWhile = dropWhile
-
--- | Strips all elements for which @prd@ is 'True' from the end of a list.
-rstripWhile :: (a -> Bool) -> [a] -> [a]
-rstripWhile prd = reverse . lstripWhile prd . reverse
+-- | Drops all elements for which the given predicate is 'True' from the
+-- beginning and the end of the list.
+dropAround :: (a -> Bool) -> [a] -> [a]
+dropAround prd =  dropWhileEnd prd . dropWhile prd
 
 -- | Strips all whitespace from both the left and the right hand side of the
 -- given 'String'.
 strip :: String -> String
-strip = stripWhile isSpace
+strip = dropAround isSpace
 
 -- | Strips all whitespace from the left side of the given 'String'.
-lstrip :: String -> String
-lstrip = lstripWhile isSpace
+stripStart :: String -> String
+stripStart = dropWhile isSpace
 
 -- | Strips all whitespace from the right side of the given 'String'.
-rstrip :: String -> String
-rstrip = rstripWhile isSpace
+stripEnd :: String -> String
+stripEnd = dropWhileEnd isSpace
 
