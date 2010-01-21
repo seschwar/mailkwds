@@ -11,8 +11,7 @@ import Control.Applicative (liftA2)
 import Control.Arrow (right)
 import Data.Char (toLower)
 import Data.List (union, nub, (\\))
-import Data.Map (Map, insert, singleton)
-import Data.Monoid (Monoid(..))
+import Data.Map (Map, empty, insert, singleton)
 import Parsimony hiding (empty, labels)
 import Parsimony.Error (ParseError)
 import XLabel.Core (Label)
@@ -26,6 +25,15 @@ data Config a = Config
     , command  :: [a] -> [a] -> [a]   -- ^ the command to apply to the 'Label's
     , labels   :: [a]                 -- ^ the 'Label's to be added/removed
     }
+
+instance Show a => Show (Config a) where
+    show x = "Config "
+             ++ "{ catenate = " ++ show (catenate x)
+             ++ ", input = " ++ show (input x)
+             ++ ", output = " ++ show (output x)
+             ++ ", command :: [a] -> [a] -> [a]"
+             ++ ", labels = " ++ show (labels x)
+             ++ " }"
 
 data Flag a = Catenate Bool
             | Input String String
@@ -48,7 +56,7 @@ parseArgs args = right (sanitizeConfig . foldr toConfig defaults)
     where defaults :: Config Label
           defaults = Config
               { catenate = False
-              , input    = mempty
+              , input    = empty
               , output   = []
               , command  = flip const
               , labels   = []
@@ -61,8 +69,8 @@ sanitizeConfig c = c
     , output = sanitizeOutput $ output c
     , labels = nub $ labels c
     }
-    where sanitizeInput x | x == mempty = singleton "x-label" ","
-                          | otherwise   = x
+    where sanitizeInput x | x == empty = singleton "x-label" ","
+                          | otherwise  = x
 
           sanitizeOutput [] = [("X-Label", ", ")]
           sanitizeOutput x  = nub x
@@ -91,12 +99,17 @@ pLabel :: Parser [String] (Flag Label)
 pLabel = Label <$> anyToken <?> "label"
 
 pCat :: Parser [String] (Flag a)
-pCat = (token "-c" <|> token "--catenate") *> (Catenate <$> pure True) <?> "catenate"
+pCat = (token "-c" <|> token "--catenate")
+       *> (Catenate <$> pure True)
+       <?> "catenate"
 
 pInput :: Parser [String] (Flag Label)
-pInput = (token "-i" <|> token "--input") *> (Input <$> anyToken <*> anyToken) <?> "input"
+pInput = (token "-i" <|> token "--input")
+         *> (Input <$> anyToken <*> anyToken)
+         <?> "input"
 
 pOutput :: Parser [String] (Flag Label)
 pOutput = (token "-o" <|> token "--output")
-          *> (Output <$> anyToken <*> anyToken) <?> "output"
+          *> (Output <$> anyToken <*> anyToken)
+          <?> "output"
 
