@@ -19,7 +19,9 @@ import XLabel.Args (Config(..), parseArgs)
 main :: IO ()
 main = do
     args <- getArgs
-    let !config = parseArgs args
+    let !config = case parseArgs args of
+                       Left err  -> error $ show err
+                       Right cfg -> cfg
     let f = toHeaders (output config) . (command config . labels $ config) . nub
     interact $ unlines . rewriteMsg (input config) f . lines
 

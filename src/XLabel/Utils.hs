@@ -13,7 +13,7 @@ module XLabel.Utils where
 import Data.Char (isSpace)
 import Data.Monoid (Monoid, mappend, mempty)
 import Parsimony (Parser, anyToken, try, unexpected, (<?>))
-import Parsimony.Pos (updatePosString)
+import Parsimony.Pos (incSourceColumn)
 import Parsimony.Stream (Stream, Token(..))
 
 -- | Apply each given function to specified argument and return the results.
@@ -67,6 +67,6 @@ satisfy f = try $ anyToken >>= \t ->
 
 -- | Make 'String's tokens so that we can parse @[String]@ with Parsimony.
 instance Token [Char] where
-    updatePos s p = updatePosString p s
+    updatePos _ p = incSourceColumn p 1
     showToken     = id
 

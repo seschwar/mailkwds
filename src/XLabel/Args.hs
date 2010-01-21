@@ -8,11 +8,13 @@
 module XLabel.Args (Config(..), parseArgs) where
 
 import Control.Applicative (liftA2)
+import Control.Arrow (right)
 import Data.Char (toLower)
 import Data.List (union, nub, (\\))
 import Data.Map (Map, insert, singleton)
 import Data.Monoid (Monoid(..))
 import Parsimony hiding (empty, labels)
+import Parsimony.Error (ParseError)
 import XLabel.Core (Label)
 import XLabel.Utils (token)
 
@@ -40,10 +42,9 @@ toConfig (Command c)  cfg = cfg { command  = c }
 toConfig (Label l)    cfg = cfg { labels   = l : labels cfg }
 
 -- | Parse the command line arguments and create an appropriate configuration.
-parseArgs :: [String] -> Config Label
-parseArgs args = case parse pArgs args of
-                      Left  _     -> error "Parse error!"
-                      Right flags -> sanitizeConfig . foldr toConfig defaults $ flags
+parseArgs :: [String] -> Either ParseError (Config Label)
+parseArgs args = right (sanitizeConfig . foldr toConfig defaults)
+                 . parse pArgs $ args
     where defaults :: Config Label
           defaults = Config
               { catenate = False
@@ -67,14 +68,17 @@ sanitizeConfig c = c
           sanitizeOutput x  = nub x
 
 pArgs :: Parser [String] [Flag Label]
-pArgs = many pOption <+> fmap (:[]) pCommand <+> many pLabel
+pArgs = many pOption <+> pSep <+> fmap (:[]) pCommand <+> many pLabel
     where (<+>) = liftA2 (++)
 
 pOption :: Parser [String] (Flag Label)
-pOption = pCat <|> pInput <|> pOutput
+pOption = pCat <|> pInput <|> pOutput <?> "option"
+
+pSep :: Parser [String] [Flag a]
+pSep = skip (token "--") *> pure [] <?> "separator"
 
 pCommand :: Eq a => Parser [String] (Flag a)
-pCommand = choice . map (\(c, f) -> token c *> (Command <$> pure f)) $ cmds
+pCommand = (<?> "command") . choice . map (\(c, f) -> token c *> (Command <$> pure f)) $ cmds
     where cmds =
               [ ("add",    flip union)
               , ("clear",  const $ const [])
@@ -84,15 +88,15 @@ pCommand = choice . map (\(c, f) -> token c *> (Command <$> pure f)) $ cmds
               ]
 
 pLabel :: Parser [String] (Flag Label)
-pLabel = Label <$> anyToken
+pLabel = Label <$> anyToken <?> "label"
 
 pCat :: Parser [String] (Flag a)
-pCat = (token "-c" <|> token "--cat") *> (Catenate <$> pure True)
+pCat = (token "-c" <|> token "--catenate") *> (Catenate <$> pure True) <?> "catenate"
 
 pInput :: Parser [String] (Flag Label)
-pInput = (token "-i" <|> token "--input") *> (Input <$> anyToken <*> anyToken)
+pInput = (token "-i" <|> token "--input") *> (Input <$> anyToken <*> anyToken) <?> "input"
 
 pOutput :: Parser [String] (Flag Label)
 pOutput = (token "-o" <|> token "--output")
-          *> (Output <$> anyToken <*> anyToken)
+          *> (Output <$> anyToken <*> anyToken) <?> "output"
 
