@@ -11,7 +11,7 @@ import Control.Applicative (liftA2)
 import Control.Monad (mapM)
 import Control.Monad.Writer.Lazy (Writer, runWriter, tell)
 import Data.Char (isSpace, toLower)
-import Data.List (intercalate)
+import Data.List (intercalate, nub)
 import Data.List.Split (dropBlanks, dropDelims, keepDelimsL, onSublist, split,
                         whenElt)
 import Data.Map (Map, lookup)
@@ -47,7 +47,7 @@ foldHeaders = concatMap $ mconscat f id id
 rewriteHdrs :: Map String String -> ([Label] -> Maybe String) -> [String]
                -> [String]
 rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
-                     in  catMaybes $ hs' ++ [f ls]
+                     in  catMaybes $ hs' ++ [f . nub $ ls]
 
 -- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
