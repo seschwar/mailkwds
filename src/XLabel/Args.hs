@@ -11,7 +11,8 @@ import Control.Applicative (liftA2)
 import Control.Arrow (right)
 import Data.Char (toLower)
 import Data.List (union, nub, (\\))
-import Data.Map (Map, empty, insert, singleton)
+import Data.Map (Map, singleton)
+import Data.Monoid (Monoid(..))
 import Parsimony hiding (empty, labels)
 import Parsimony.Error (ParseError)
 import XLabel.Core (Label)
@@ -26,6 +27,22 @@ data Config a = Config
     , labels   :: [a]                 -- ^ the 'Label's to be added/removed
     }
 
+instance Monoid (Config a) where
+    mempty = Config
+                 { catenate = False
+                 , input    = mempty
+                 , output   = mempty
+                 , command  = flip const
+                 , labels   = mempty
+                 }
+    mappend x y = Config
+                      { catenate = catenate y
+                      , input    = input y `mappend` input x
+                      , output   = output x `mappend` output y
+                      , command  = command y
+                      , labels   = labels x `mappend` labels y
+                      }
+
 instance Show a => Show (Config a) where
     show x = "Config "
              ++ "{ catenate = " ++ show (catenate x)
@@ -35,32 +52,9 @@ instance Show a => Show (Config a) where
              ++ ", labels = " ++ show (labels x)
              ++ " }"
 
-data Flag a = Catenate Bool
-            | Input String String
-            | Output String String
-            | Command ([a] -> [a] -> [a])
-            | Label a
-
--- | Add a 'Flag' to the given 'Config'.
-toConfig :: Flag a -> Config a -> Config a
-toConfig (Catenate c) cfg = cfg { catenate = c }
-toConfig (Input h s)  cfg = cfg { input    = insert (map toLower h) s $ input cfg }
-toConfig (Output h s) cfg = cfg { output   = (h, s) : output cfg }
-toConfig (Command c)  cfg = cfg { command  = c }
-toConfig (Label l)    cfg = cfg { labels   = l : labels cfg }
-
 -- | Parse the command line arguments and create an appropriate configuration.
 parseArgs :: [String] -> Either ParseError (Config Label)
-parseArgs args = right (sanitizeConfig . foldr toConfig defaults)
-                 . parse pArgs $ args
-    where defaults :: Config Label
-          defaults = Config
-              { catenate = False
-              , input    = empty
-              , output   = []
-              , command  = flip const
-              , labels   = []
-              }
+parseArgs args = right (sanitizeConfig . mconcat) . parse pArgs $ args
 
 -- | Ensure a halfway sane configuration.
 sanitizeConfig :: Eq a => Config a -> Config a
@@ -69,24 +63,26 @@ sanitizeConfig c = c
     , output = sanitizeOutput $ output c
     , labels = nub $ labels c
     }
-    where sanitizeInput x | x == empty = singleton "x-label" ","
-                          | otherwise  = x
+    where sanitizeInput x | x == mempty = singleton "x-label" ","
+                          | otherwise   = x
 
           sanitizeOutput [] = [("X-Label", ", ")]
           sanitizeOutput x  = nub x
 
-pArgs :: Parser [String] [Flag Label]
+pArgs :: Parser [String] [Config Label]
 pArgs = many pOption <+> pSep <+> fmap (:[]) pCommand <+> many pLabel
-    where (<+>) = liftA2 (++)
+    where (<+>) = liftA2 mappend
 
-pOption :: Parser [String] (Flag Label)
+pOption :: Parser [String] (Config Label)
 pOption = pCat <|> pInput <|> pOutput <?> "option"
 
-pSep :: Parser [String] [Flag a]
+pSep :: Parser [String] [Config a]
 pSep = skip (token "--") *> pure [] <?> "separator"
 
-pCommand :: Eq a => Parser [String] (Flag a)
-pCommand = (<?> "command") . choice . map (\(c, f) -> token c *> (Command <$> pure f)) $ cmds
+pCommand :: Eq a => Parser [String] (Config a)
+pCommand = (<?> "command") . choice . map (\(c, f) ->
+           token c *> ((\x -> mempty { command = x }) <$> pure f)
+           ) $ cmds
     where cmds =
               [ ("add",    flip union)
               , ("clear",  const $ const [])
@@ -95,21 +91,21 @@ pCommand = (<?> "command") . choice . map (\(c, f) -> token c *> (Command <$> pu
               , ("tidy",   flip const)
               ]
 
-pLabel :: Parser [String] (Flag Label)
-pLabel = Label <$> anyToken <?> "label"
+pLabel :: Parser [String] (Config Label)
+pLabel = (\x -> mempty { labels = [x] }) <$> anyToken <?> "label"
 
-pCat :: Parser [String] (Flag a)
-pCat = (token "-c" <|> token "--catenate")
-       *> (Catenate <$> pure True)
+pCat :: Parser [String] (Config a)
+pCat = (token "-c" <|> token "--cat")
+       *> ((\x -> mempty { catenate = x }) <$> pure True)
        <?> "catenate"
 
-pInput :: Parser [String] (Flag Label)
+pInput :: Parser [String] (Config Label)
 pInput = (token "-i" <|> token "--input")
-         *> (Input <$> anyToken <*> anyToken)
-         <?> "input"
+          *> ((\x y -> mempty { input = singleton (map toLower x) y })
+          <$> anyToken <*> anyToken) <?> "input"
 
-pOutput :: Parser [String] (Flag Label)
+pOutput :: Parser [String] (Config Label)
 pOutput = (token "-o" <|> token "--output")
-          *> (Output <$> anyToken <*> anyToken)
-          <?> "output"
+          *> ((\x y -> mempty { output = [(x, y)] })
+          <$> anyToken <*> anyToken) <?> "output"
 
