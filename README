@@ -1,43 +1,58 @@
-% X-LABEL(1) 0.1
+% X-LABEL(1) 0.0
 % Sebastian Schwarz <seschwar@googlemail.com>
-% 2009-06-06
+% 2010-01-21
 
 # NAME
 
-x-label -- X-Label email header editor
+x-label -- X-Label email header rewriter
 
 # SYNOPSIS
 
-`x-label` *command* [*label*]...
+`x-label` [*options*] [--] *command* [*label*]...
 
 # DESCRIPTION
 
-`x-label` reads a single email message from standard input, searches
-for X-Label header fields, modifies them according to the specified
-commands and outputs the modified message with the new X-Label header
-field at the bottom of the email header section to the standard output.
+`x-label` reads a single email message from standard input, searches for a X-Label or other specified header fields, modifies them according to the given command and outputs the modified message with the new header fields at the bottom of the email header section to the standard output.
 
-`x-label` automatically removes any duplicate labels and combines
-multiple X-Label header fields.  The labels in the header field body
-are assumed to be simple strings separated by whitespace.
+`x-label` automatically removes any duplicate labels and combines multiple read header fields.
+
+# OPTIONS
+
+-c, --catenate
+:   Catenate the mail headers instead of refolding them to fit the 78 characters per line limit.
+
+-i *HEADER* *SEPARATOR*, --input *HEADER* *SEPARATOR*
+:   Read and parse the *HEADER* by splitting it on *SEPARATOR*.
+    If given multiple times the parsed labels from all *HEADER*s will be joined before being processed.
+    If this option is not specified `x-label` defaults to `--input X-Label ','`.
+
+-o *HEADER* *SEPARATOR*, --output *HEADER* *SEPARATOR*
+:   Print the processed labels in the field body of *HEADER* as a list separated by *SEPARATOR*.
+    If specified multiple times all *HEADER*s will be printed with the complete set of labels.
+    If this option is not specified `x-label` defaults to `--output X-Label ', '`.
 
 # COMMANDS
 
 add
-:   Adds the specified labels to the X-Label header field body.
+:   Adds the given labels to the header field body.
 
 clear
-:   Deletes the whole X-Label header field.
+:   Deletes all specified header fields.
 
 set
-:   Overwrites the X-Label header field body with the specified labels.
+:   Overwrites the header field body with the given labels.
 
 remove
-:   Removes the specified labels from the X-Label header field body.
+:   Removes the specified labels from the header field body.
 
 tidy
-:   Tidies the X-Label header field(s) removing duplicates and odd
-    formatting.
+:   Tidies the specified header field(s) removing duplicates and odd formatting.
+
+# EXAMPLES
+
+Synchronize Mutt's X-Label and Thunderbirds X-Mozilla-Keys headers:
+
+    x-label -i X-Label , -i X-Mozilla-Keys ' ' -o X-Label ', ' -o X-Mozilla-Keys ' ' add synced
 
 # SEE ALSO
 

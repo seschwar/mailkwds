@@ -1,8 +1,7 @@
 # Dependencies
 
-Apart from the usual base libraries this program has no further runtime
-dependencies.  Obviously Cabal is required for the compilation and
-Pandoc for the generation of the manual page.
+For the required dependencies and their versions see the file
+`x-label.cabal`.
 
 # Installation
 
@@ -22,10 +21,10 @@ None of the procedures above installs the manual page, as Cabal
 currently has no convenient way to do so.  Instead run the following
 command to generate it from the README.
 
-    pandoc -sS -f markdown -t man -o x-label.1 README
+    pandoc --standalone --read markdown --write man --output x-label.1 README
 
-Copy the resulting file to `/usr/share/man/man1` or somewhere else
-in you `MANPATH`.
+Copy the resulting file to `/usr/local/share/man/man1` or somewhere
+else in you `MANPATH`.
 
 # Usage
 
