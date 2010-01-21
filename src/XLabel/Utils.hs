@@ -1,11 +1,11 @@
 -- |
--- Module:     Utils
--- Copyright:  Copyright (c) 2009 Sebastian Schwarz <seschwar@googlemail.com>
+-- Module:     XLabel.Utils
+-- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 -- License:    ISC
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module Utils where
+module XLabel.Utils where
 
 import Data.Char (isSpace)
 import Data.Monoid (Monoid, mappend, mempty)

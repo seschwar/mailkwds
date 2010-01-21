@@ -27,22 +27,22 @@ flag test
 
 executable test
     if flag(test)
-        build-depends: QuickCheck >= 2.0 && < 2.2, test-framework < 0.3,
-                       test-framework-quickcheck2 < 0.3
+        build-depends: QuickCheck >= 2.0 && < 3, test-framework < 1,
+                       test-framework-quickcheck2 < 1
         buildable:     True
     else
         buildable:     False
     hs-source-dirs: src, test
     main-is:        Test.hs
-    other-modules:  Utils, XLabel
+    other-modules:  XLabel.Core, XLabel.Utils
     cpp-options:    -DTEST
     ghc-options:    -O2 -Wall -hide-all-packages
 
 executable x-label
-    build-depends:  base < 4.2, containers < 0.3,
-                    mtl >= 1.1 && < 1.2, split < 0.2
+    build-depends:  base >= 4.2 && < 5, containers < 1, mtl >= 1.1 && < 2,
+                    split < 1
     hs-source-dirs: src
-    main-is:        Main.hs
-    other-modules:  Utils, XLabel
+    main-is:        XLabel.hs
+    other-modules:  XLabel.Core, XLabel.Utils
     ghc-options:    -O2 -Wall -hide-all-packages
 

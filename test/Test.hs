@@ -1,6 +1,6 @@
 -- |
 -- Module:     Main
--- Copyright:  Copyright (c) 2009 Sebastian Schwarz <seschwar@googlemail.com>
+-- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 -- License:    ISC
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
@@ -13,8 +13,8 @@ import Data.List (all)
 import Test.Framework (Test, defaultMain, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck
-import Utils
-import XLabel
+import XLabel.Core
+import XLabel.Utils
 
 main :: IO ()
 main = defaultMain tests

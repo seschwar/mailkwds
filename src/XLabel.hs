@@ -1,72 +1,36 @@
 -- |
--- Module:     XLabel
--- Copyright:  Copyright (c) 2009 Sebastian Schwarz <seschwar@googlemail.com>
+-- Module:     Main
+-- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 -- License:    ISC
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module XLabel where
+module Main where
 
-import Control.Applicative (liftA2)
-import Control.Monad (mapM)
-import Control.Monad.Writer.Lazy (Writer, runWriter, tell)
-import Data.Char (isSpace, toLower)
-import Data.List (intercalate)
-import Data.List.Split (dropBlanks, dropDelims, keepDelimsL, onSublist, split,
-                        whenElt)
-import Data.Map (Map, lookup)
-import Data.Maybe (Maybe(..), catMaybes)
-import Utils (mconscat, strip, stripStart, stripEnd)
+import Control.Monad (when)
+import Data.Char (toLower)
+import Data.List (union, (\\))
+import Data.Map (fromList)
+import System.Environment (getArgs)
+import XLabel.Core (rewriteMsg, toHeader)
 
--- | A message 'Label' is just a 'String'.
-type Label = String
+-- | Rewrites the X-Label header fields from a message read from stdin to
+-- stdout.
+main :: IO ()
+main = do
+    args <- getArgs
+    when (null args) (error "No command specified.")
+    let m = fromList [(map toLower "X-Label", " ")]
+    let f = toHeader "X-Label" " " . operator (head args) (tail args)
+    interact $ unlines . rewriteMsg m f . lines
 
--- | Rewrites an email message by using 'rewriteHdrs' on its unfolded header.
-rewriteMsg :: Map String String -> ([Label] -> Maybe String) -> [String]
-              -> [String]
-rewriteMsg m f msg = let (h, b) = break null msg
-                     in  (foldHeaders . rewriteHdrs m f . unfoldHeaders) h ++ b
-
--- | Appends a 'String' beginning with a whitespace character to the previous
--- 'String' in the list removing any superfluous intermediate whitespace
--- characters.
-unfoldHeaders :: [String] -> [String]
-unfoldHeaders = mconscat (const $ liftA2 (&&) (not . null) (isSpace . head))
-                stripEnd (pad . stripStart)
-    where pad "" = ""
-          pad x  = ' ':x
-
--- | Folds headers longer than 78 character in multiple lines.
-foldHeaders :: [String] -> [String]
-foldHeaders = concatMap $ mconscat f id id
-              . (split . keepDelimsL . whenElt $ isSpace)
-    where f x y = length x + length y <= 78
-
--- | Rewrite the headers of a message by appending the extraced and modified
--- 'Label's if they are not empty.
-rewriteHdrs :: Map String String -> ([Label] -> Maybe String) -> [String]
-               -> [String]
-rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
-                     in  catMaybes $ hs' ++ [f ls]
-
--- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
--- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
-extractLabels :: Map String String -> String -> Writer [Label] (Maybe String)
-extractLabels m h = case break (== ':') h of
-                         (n, ':':b) -> case Data.Map.lookup (map toLower n) m of
-                                            Nothing  -> return $ Just h
-                                            Just sep -> tell (toLabels sep b)
-                                                        >> return Nothing
-                         _          -> return $ Just h
-
--- | Splits the body of the given header field on the given substring into
--- 'Label's.
-toLabels :: String -> String -> [Label]
-toLabels x = filter (not . null) . map strip
-             . (split . dropBlanks . dropDelims . onSublist $ x)
-
--- | Produces an email header field of the given name and the 'Label's.
-toHeader :: String -> String -> [Label] -> Maybe String
-toHeader _   _   [] = Nothing
-toHeader hdr sep ls = Just $ hdr ++ ": " ++ intercalate sep ls
+-- | Chooses the operator to apply to the 'Label's in the mail and the ones
+-- specified as command line arguments.
+operator :: Eq a => String -> [a] -> [a] -> [a]
+operator "add"    a b = a `union` b
+operator "clear"  _ _ = []
+operator "remove" a b = b \\ a
+operator "set"    a _ = a
+operator "tidy"   _ b = b
+operator s        _ _ = error $ "Invalid command: " ++ s
 
