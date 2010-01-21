@@ -8,21 +8,20 @@
 module XLabel.Core where
 
 import Control.Applicative (liftA2)
-import Control.Monad (mapM)
 import Control.Monad.Writer.Lazy (Writer, runWriter, tell)
 import Data.Char (isSpace, toLower)
-import Data.List (intercalate, nub)
+import Data.List (intercalate)
 import Data.List.Split (dropBlanks, dropDelims, keepDelimsL, onSublist, split,
                         whenElt)
 import Data.Map (Map, lookup)
-import Data.Maybe (Maybe(..), catMaybes)
-import XLabel.Utils (mconscat, strip, stripStart, stripEnd)
+import Data.Maybe (catMaybes)
+import XLabel.Utils (applyEach, mconscat, strip, stripStart, stripEnd)
 
 -- | A message 'Label' is just a 'String'.
 type Label = String
 
 -- | Rewrites an email message by using 'rewriteHdrs' on its unfolded header.
-rewriteMsg :: Map String String -> ([Label] -> Maybe String) -> [String]
+rewriteMsg :: Map String String -> ([Label] -> [Maybe String]) -> [String]
               -> [String]
 rewriteMsg m f msg = let (h, b) = break null msg
                      in  (foldHeaders . rewriteHdrs m f . unfoldHeaders) h ++ b
@@ -44,10 +43,10 @@ foldHeaders = concatMap $ mconscat f id id
 
 -- | Rewrite the headers of a message by appending the extraced and modified
 -- 'Label's if they are not empty.
-rewriteHdrs :: Map String String -> ([Label] -> Maybe String) -> [String]
+rewriteHdrs :: Map String String -> ([Label] -> [Maybe String]) -> [String]
                -> [String]
 rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
-                     in  catMaybes $ hs' ++ [f . nub $ ls]
+                     in  catMaybes $ hs' ++ f ls
 
 -- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
@@ -64,6 +63,10 @@ extractLabels m h = case break (== ':') h of
 toLabels :: String -> String -> [Label]
 toLabels x = filter (not . null) . map strip
              . (split . dropBlanks . dropDelims . onSublist $ x)
+
+-- | Produces an email header field for all specified fields.
+toHeaders :: [(String, String)] -> [Label] -> [Maybe String]
+toHeaders xs = applyEach $ map (uncurry toHeader) xs
 
 -- | Produces an email header field of the given name and the 'Label's.
 toHeader :: String -> String -> [Label] -> Maybe String
