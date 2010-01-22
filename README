@@ -21,6 +21,9 @@ x-label -- X-Label email header rewriter
 -c, --catenate
 :   Catenate the mail headers instead of refolding them to fit the 78 characters per line limit.
 
+-h, --help
+:   Print usage information.
+
 -i *HEADER* *SEPARATOR*, --input *HEADER* *SEPARATOR*
 :   Read and parse the *HEADER* by splitting it on *SEPARATOR*.
     If given multiple times the parsed labels from all *HEADER*s will be joined before being processed.
@@ -30,6 +33,9 @@ x-label -- X-Label email header rewriter
 :   Print the processed labels in the field body of *HEADER* as a list separated by *SEPARATOR*.
     If specified multiple times all *HEADER*s will be printed with the complete set of labels.
     If this option is not specified `x-label` defaults to `--output X-Label ', '`.
+
+-v, --version
+:   Print version information.
 
 # COMMANDS
 
