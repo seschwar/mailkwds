@@ -10,7 +10,6 @@
 module Main where
 
 import Data.List (nub)
-import Data.Maybe (fromJust)
 import System.Environment (getArgs)
 import XLabel.Core (rewriteMsg, toHeaders)
 import XLabel.Args (Config(..), parseArgs)
@@ -21,8 +20,8 @@ main :: IO ()
 main = do
     args <- getArgs
     let !config = case parseArgs args of
-                       Left err  -> error $ show err
+                       Left  msg -> error msg
                        Right cfg -> cfg
-    let f = toHeaders (fromJust $ output config) . (fromJust $ command config) (fromJust $ labels config) . nub
-    interact $ unlines . rewriteMsg (fromJust $ input config) f . lines
+    let f = toHeaders (output config) . (command config $ labels config) . nub
+    interact $ unlines . rewriteMsg (input config) f . lines
 
