@@ -21,10 +21,10 @@ import XLabel.Utils (applyEach, mconscat, strip, stripStart, stripEnd)
 type Label = String
 
 -- | Rewrites an email message by using 'rewriteHdrs' on its unfolded header.
-rewriteMsg :: Map String String -> ([Label] -> [Maybe String]) -> [String]
-              -> [String]
-rewriteMsg m f msg = let (h, b) = break null msg
-                     in  (foldHeaders . rewriteHdrs m f . unfoldHeaders) h ++ b
+rewriteMsg :: Map String String -> ([Label] -> [Maybe String])
+              -> ([String] -> [String]) -> [String] -> [String]
+rewriteMsg m f g msg = let (h, b) = break null msg
+                       in  (g . rewriteHdrs m f . unfoldHeaders) h ++ b
 
 -- | Appends a 'String' beginning with a whitespace character to the previous
 -- 'String' in the list removing any superfluous intermediate whitespace

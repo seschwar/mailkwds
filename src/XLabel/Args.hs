@@ -14,27 +14,29 @@ import Data.Char (toLower)
 import Data.List (union, nub, (\\))
 import Data.Map (Map, empty, insert, singleton)
 import Parsimony hiding (empty, labels)
-import XLabel.Core (Label)
+import XLabel.Core (Label, foldHeaders)
 import XLabel.Utils (token)
 
 -- | The configuration options for the program.
 data Config a = Config
-    { catenate :: Bool                -- ^ whether to catenate or refold headers
-    , command  :: [a] -> [a] -> [a]   -- ^ the command to apply to the 'Label's
+    { catenate :: [String] -> [String]  -- ^ whether to catenate or refold headers
+    , command  :: [a] -> [a] -> [a]     -- ^ the command to apply to the 'Label's
     , help     :: Bool
-    , input    :: Map String String   -- ^ the headers to parse
-    , labels   :: [a]                 -- ^ the 'Label's to be added/removed
-    , output   :: [(String, String)]  -- ^ the headers to print
+    , input    :: Map String String     -- ^ the headers to parse
+    , labels   :: [a]                   -- ^ the 'Label's to be added/removed
+    , output   :: [(String, String)]    -- ^ the headers to print
     , version  :: Bool
     }
 
 instance Show a => Show (Config a) where
     show x = "Config "
-             ++ "{ catenate = " ++ show (catenate x)
-             ++ ", input = " ++ show (input x)
-             ++ ", output = " ++ show (output x)
+             ++ "{ catenate :: [String] -> [String]"
              ++ ", command :: [a] -> [a] -> [a]"
+             ++ ", help = " ++ show (help x)
+             ++ ", input = " ++ show (input x)
              ++ ", labels = " ++ show (labels x)
+             ++ ", output = " ++ show (output x)
+             ++ ", version = " ++ show (version x)
              ++ " }"
 
 -- | Parse the command line arguments and create an appropriate configuration.
@@ -43,7 +45,7 @@ parseArgs args = ((++) "Unable to parse command line arguments:\n" . show)
                  +++ (sanitizeConfig . \x -> foldr (>>>) id x $ config)
                  $ parse pArgs args  -- (>>>) ensures that the map's values get
     where config = Config            -- overwritten correctly
-              { catenate = False
+              { catenate = foldHeaders
               , command  = flip const
               , help     = False
               , input    = empty
@@ -72,7 +74,7 @@ pOption :: Parser [String] (Config Label -> Config Label)
 pOption = pCat <|> pHelp <|> pInput <|> pOutput <|> pVersion <?> "option"
 
 pCat :: Parser [String] (Config a -> Config a)
-pCat = (token "-c" <|> token "--cat") *> pure (cat True) <?> "catenate"
+pCat = (token "-c" <|> token "--cat") *> pure (cat id) <?> "catenate"
     where cat x c = c { catenate = x }
 
 pHelp :: Parser [String] (Config a -> Config a)

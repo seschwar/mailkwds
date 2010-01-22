@@ -27,7 +27,7 @@ main = do
     when (help config) (putStr helpMessage >> exitSuccess)
     when (version config) (putStr versionMessage >> exitSuccess)
     let f = toHeaders (output config) . (command config $ labels config) . nub
-    interact $ unlines . rewriteMsg (input config) f . lines
+    interact $ unlines . rewriteMsg (input config) f (catenate config) . lines
 
 helpMessage:: String
 helpMessage = unlines $
