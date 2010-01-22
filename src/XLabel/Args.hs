@@ -9,6 +9,7 @@ module XLabel.Args (Config(..), parseArgs) where
 
 import Control.Applicative (liftA2)
 import Control.Arrow (right)
+import Control.Monad (mplus)
 import Data.Char (toLower)
 import Data.List (union, nub, (\\))
 import Data.Map (Map, singleton)
@@ -20,26 +21,26 @@ import XLabel.Utils (token)
 
 -- | The configuration options for the program.
 data Config a = Config
-    { catenate :: Bool                -- ^ whether to catenate or refold headers
-    , input    :: Map String String   -- ^ the headers to parse
-    , output   :: [(String, String)]  -- ^ the headers to print
-    , command  :: [a] -> [a] -> [a]   -- ^ the command to apply to the 'Label's
-    , labels   :: [a]                 -- ^ the 'Label's to be added/removed
+    { catenate :: Maybe Bool                 -- ^ whether to catenate or refold headers
+    , input    :: Maybe (Map String String)  -- ^ the headers to parse
+    , output   :: Maybe [(String, String)]   -- ^ the headers to print
+    , command  :: Maybe ([a] -> [a] -> [a])  -- ^ the command to apply to the 'Label's
+    , labels   :: Maybe [a]                  -- ^ the 'Label's to be added/removed
     }
 
 instance Monoid (Config a) where
     mempty = Config
-                 { catenate = False
-                 , input    = mempty
-                 , output   = mempty
-                 , command  = flip const
-                 , labels   = mempty
+                 { catenate = Nothing
+                 , input    = Nothing
+                 , output   = Nothing
+                 , command  = Nothing
+                 , labels   = Nothing
                  }
     mappend x y = Config
-                      { catenate = catenate y
+                      { catenate = catenate y `mplus` catenate x
                       , input    = input y `mappend` input x
                       , output   = output x `mappend` output y
-                      , command  = command y
+                      , command  = command y `mplus` command x
                       , labels   = labels x `mappend` labels y
                       }
 
@@ -59,15 +60,12 @@ parseArgs args = right (sanitizeConfig . mconcat) . parse pArgs $ args
 -- | Ensure a halfway sane configuration.
 sanitizeConfig :: Eq a => Config a -> Config a
 sanitizeConfig c = c
-    { input  = sanitizeInput $ input c
-    , output = sanitizeOutput $ output c
-    , labels = nub $ labels c
+    { catenate = catenate c `mplus` Just False
+    , input    = input c `mplus` Just (singleton "x-label" ",")
+    , output   = fmap nub (output c) `mplus` Just [("X-Label", ", ")]
+    , command  = command c `mplus` Just (flip const)
+    , labels   = fmap nub (labels c) `mplus` Just []
     }
-    where sanitizeInput x | x == mempty = singleton "x-label" ","
-                          | otherwise   = x
-
-          sanitizeOutput [] = [("X-Label", ", ")]
-          sanitizeOutput x  = nub x
 
 pArgs :: Parser [String] [Config Label]
 pArgs = many pOption <+> pSep <+> fmap (:[]) pCommand <+> many pLabel
@@ -80,8 +78,8 @@ pSep :: Parser [String] [Config a]
 pSep = skip (token "--") *> pure [] <?> "separator"
 
 pCommand :: Eq a => Parser [String] (Config a)
-pCommand = (<?> "command") . choice . map (\(c, f) ->
-           token c *> ((\x -> mempty { command = x }) <$> pure f)
+pCommand = (<?> "commands") . choice . map (\(c, f) ->
+           token c *> ((\x -> mempty { command = Just x }) <$> pure f <?> "command")
            ) $ cmds
     where cmds =
               [ ("add",    flip union)
@@ -92,20 +90,20 @@ pCommand = (<?> "command") . choice . map (\(c, f) ->
               ]
 
 pLabel :: Parser [String] (Config Label)
-pLabel = (\x -> mempty { labels = [x] }) <$> anyToken <?> "label"
+pLabel = (\x -> mempty { labels = Just [x] }) <$> anyToken <?> "label"
 
 pCat :: Parser [String] (Config a)
 pCat = (token "-c" <|> token "--cat")
-       *> ((\x -> mempty { catenate = x }) <$> pure True)
+       *> ((\x -> mempty { catenate = Just x }) <$> pure True)
        <?> "catenate"
 
 pInput :: Parser [String] (Config Label)
 pInput = (token "-i" <|> token "--input")
-          *> ((\x y -> mempty { input = singleton (map toLower x) y })
+          *> ((\x y -> mempty { input = Just $ singleton (map toLower x) y })
           <$> anyToken <*> anyToken) <?> "input"
 
 pOutput :: Parser [String] (Config Label)
 pOutput = (token "-o" <|> token "--output")
-          *> ((\x y -> mempty { output = [(x, y)] })
+          *> ((\x y -> mempty { output = Just [(x, y)] })
           <$> anyToken <*> anyToken) <?> "output"
 
