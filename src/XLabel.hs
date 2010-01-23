@@ -22,7 +22,7 @@ main :: IO ()
 main = do
     args <- getArgs
     let !config = case parseArgs args of
-                       Left  msg -> error $ msg ++ "\n\n" ++ helpMessage
+                       Left  msg -> error $ msg ++ "\nTry `x-label --help` for help."
                        Right cfg -> cfg
     when (help config) (putStr helpMessage >> exitSuccess)
     when (version config) (putStr versionMessage >> exitSuccess)

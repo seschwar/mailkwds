@@ -64,7 +64,7 @@ sanitizeConfig c = c
     where sanitizeInput  x | x == empty = singleton "x-label" ","
                            | otherwise  = x
           sanitizeOutput [] = [("X-Label", ", ")]
-          sanitizeOutput x  = nub x
+          sanitizeOutput x  = nub $ reverse x  -- adjust order to command line
 
 pArgs :: Parser [String] [Config Label -> Config Label]
 pArgs = many pOption <+> pSep <+> fmap (:[]) pCommand <+> many pLabel

@@ -54,6 +54,14 @@ remove
 tidy
 :   Tidies the specified header field(s) removing duplicates and odd formatting.
 
+# BUGS
+
+`x-label` strips trailing whitespace characters from the header fields.
+It fails on mails with a encoding different from the one of the current locale.
+It also does not use MIME de- and encoding on the label header fields.
+
+If you find more bug, please report them at <http://bitbucket.org/seschwar/x-label/issues>.
+
 # EXAMPLES
 
 Synchronize Mutt's X-Label and Thunderbirds X-Mozilla-Keys headers:
@@ -64,5 +72,5 @@ Synchronize Mutt's X-Label and Thunderbirds X-Mozilla-Keys headers:
 
 `formail`(1), `reformail`(1).
 
-Homepage: <http://bitbucket.org/seschwar/x-label/>
+Homepage: <http://bitbucket.org/seschwar/x-label>
 
