@@ -14,6 +14,7 @@ module XLabel.Str.Text
     , Str
     , (++)
     , break
+    , breakOn
     , splitOn
     ) where
 

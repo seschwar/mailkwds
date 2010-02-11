@@ -9,67 +9,64 @@ module XLabel.Core where
 
 import Control.Applicative (liftA2)
 import Control.Monad.Writer.Lazy (Writer, runWriter, tell)
-import Data.Char (isSpace, toLower)
-import Data.List (intercalate)
-import Data.List.Split (dropBlanks, dropDelims, keepDelimsL, onSublist, split,
-                        whenElt)
+import Data.Char (isSpace)
 import Data.Map (Map, lookup)
 import Data.Maybe (catMaybes)
-import XLabel.Utils (applyEach, mconscat, strip, stripStart, stripEnd)
-
--- | A message 'Label' is just a 'String'.
-type Label = String
+import Prelude hiding (lookup)
+import XLabel.Str (Str)
+import XLabel.Utils (applyEach, mconscat)
+import qualified XLabel.Str as S
 
 -- | Rewrites an email message by using 'rewriteHdrs' on its unfolded header.
-rewriteMsg :: Map String String -> ([Label] -> [Maybe String])
-              -> ([String] -> [String]) -> [String] -> [String]
-rewriteMsg m f g msg = let (h, b) = break null msg
+rewriteMsg :: Map Str Str -> ([Str] -> [Maybe Str]) -> ([Str] -> [Str])
+              -> [Str] -> [Str]
+rewriteMsg m f g msg = let (h, b) = break S.null msg
                        in  (g . rewriteHdrs m f . unfoldHeaders) h ++ b
 
 -- | Appends a 'String' beginning with a whitespace character to the previous
 -- 'String' in the list removing any superfluous intermediate whitespace
 -- characters.
-unfoldHeaders :: [String] -> [String]
-unfoldHeaders = mconscat (const $ liftA2 (&&) (not . null) (isSpace . head))
-                stripEnd (pad . stripStart)
+unfoldHeaders :: [Str] -> [Str]
+unfoldHeaders = mconscat (const $ liftA2 (&&) (not . S.null) (isSpace . S.head))
+                S.stripEnd (pad . S.stripStart)
     where pad "" = ""
-          pad x  = ' ':x
+          pad x  = S.cons ' ' x
 
 -- | Folds headers longer than 78 character in multiple lines.
-foldHeaders :: [String] -> [String]
-foldHeaders = concatMap $ mconscat f id id
-              . (split . keepDelimsL . whenElt $ isSpace)
-    where f x y = length x + length y <= 78
+foldHeaders :: [Str] -> [Str]
+foldHeaders = concatMap $ mconscat f id id . pad . S.words
+    where pad []     = []
+          pad (x:xs) = x : map (S.cons ' ') xs
+          f x y = S.length x + S.length y <= 78
 
 -- | Rewrite the headers of a message by appending the extraced and modified
 -- 'Label's if they are not empty.
-rewriteHdrs :: Map String String -> ([Label] -> [Maybe String]) -> [String]
-               -> [String]
+rewriteHdrs :: Map Str Str -> ([Str] -> [Maybe Str]) -> [Str] -> [Str]
 rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
                      in  catMaybes $ hs' ++ f ls
 
 -- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
-extractLabels :: Map String String -> String -> Writer [Label] (Maybe String)
-extractLabels m h = case break (== ':') h of
-                         (n, ':':b) -> case Data.Map.lookup (map toLower n) m of
-                                            Nothing  -> return $ Just h
-                                            Just sep -> tell (toLabels sep b)
-                                                        >> return Nothing
-                         _          -> return $ Just h
+extractLabels :: Map Str Str -> Str -> Writer [Str] (Maybe Str)
+extractLabels m h = let (n, b) = S.break (== ':') h
+                    in  if ":" `S.isPrefixOf` b
+                           then case lookup (S.toLower n) m of
+                                     Nothing  -> return $ Just h
+                                     Just sep -> tell (toLabels sep $ S.tail b)
+                                                 >> return Nothing
+                           else return $ Just h
 
 -- | Splits the body of the given header field on the given substring into
 -- 'Label's.
-toLabels :: String -> String -> [Label]
-toLabels x = filter (not . null) . map strip
-             . (split . dropBlanks . dropDelims . onSublist $ x)
+toLabels :: Str -> Str -> [Str]
+toLabels x = filter (not . S.null) . map S.strip . S.splitOn x
 
 -- | Produces an email header field for all specified fields.
-toHeaders :: [(String, String)] -> [Label] -> [Maybe String]
+toHeaders :: [(Str, Str)] -> [Str] -> [Maybe Str]
 toHeaders xs = applyEach $ map (uncurry toHeader) xs
 
 -- | Produces an email header field of the given name and the 'Label's.
-toHeader :: String -> String -> [Label] -> Maybe String
+toHeader :: Str -> Str -> [Str] -> Maybe Str
 toHeader _   _   [] = Nothing
-toHeader hdr sep ls = Just $ hdr ++ ": " ++ intercalate sep ls
+toHeader hdr sep ls = Just $ hdr `S.append` ": " `S.append` S.intercalate sep ls
 

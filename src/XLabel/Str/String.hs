@@ -32,6 +32,7 @@ import Data.Char (Char, String)
 import Data.Function (id)
 import Data.List.Split (splitOn, splitWhen)
 import Data.Maybe (Maybe(..))
+import Prelude (undefined)
 import System.IO (readFile, writeFile, appendFile, hGetContents, hGetLine, hPutStr, hPutStrLn, interact, getContents, getLine, putStr, putStrLn)
 import XLabel.Lst.List
 import qualified Data.Char as C
@@ -49,7 +50,7 @@ append = (++)
 
 uncons :: String -> Maybe (Char, String)
 uncons []     = Nothing
-uncons (x:xs) = Just (x:xs)
+uncons (x:xs) = Just (x, xs)
 
 toLower :: String -> String
 toLower = map C.toLower
@@ -69,7 +70,7 @@ stripEnd = dropWhile C.isSpace
 splitBy :: (a -> Bool) -> [a] -> [[a]]
 splitBy = splitWhen
 
-breakBy :: (String -> Bool) -> String -> (String, String)
+breakBy :: (Char -> Bool) -> String -> (String, String)
 breakBy = break
 
 breakOn :: String -> String -> (String, String)
