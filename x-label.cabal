@@ -62,7 +62,8 @@ executable x-label
     if flag(String)
         build-depends: split >= 0.1 && < 0.2
         cpp-options:   -D__STRING__=String
-        other-modules: XLabel.Str.String
+        other-modules: XLabel.Lst.List,
+                       XLabel.Str.String
     build-depends:  base >= 4.2 && < 4.3,
                     containers >= 0.3 && < 0.4,
                     mtl >= 1.1 && < 1.2,
