@@ -24,12 +24,12 @@ x-label -- X-Label email header rewriter
 -h, --help
 :   Print usage information.
 
--i *HEADER* *SEPARATOR*, --input *HEADER* *SEPARATOR*
+-f *HEADER* *SEPARATOR*, --from *HEADER* *SEPARATOR*, -i *HEADER* *SEPARATOR*, --input *HEADER* *SEPARATOR*
 :   Read and parse the *HEADER* by splitting it on *SEPARATOR*.
     If given multiple times the parsed labels from all *HEADER*s will be joined before being processed.
     If this option is not specified `x-label` defaults to `--input X-Label ','`.
 
--o *HEADER* *SEPARATOR*, --output *HEADER* *SEPARATOR*
+-o *HEADER* *SEPARATOR*, --output *HEADER* *SEPARATOR*, -t *HEADER* *SEPARATOR*, --to *HEADER* *SEPARATOR*
 :   Print the processed labels in the field body of *HEADER* as a list separated by *SEPARATOR*.
     If specified multiple times all *HEADER*s will be printed with the complete set of labels.
     If this option is not specified `x-label` defaults to `--output X-Label ', '`.

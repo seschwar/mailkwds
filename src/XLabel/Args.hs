@@ -108,13 +108,15 @@ pHelp = (token "-h" <|> token "--help") *> pure (hel True) <?> "help"
     where hel x c = c { help = x }
 
 pInput :: (IsString a, Ord a) => Parser [String] (Config a -> Config a)
-pInput = (token "-i" <|> token "--input") *> (inp <$> anyToken <*> anyToken)
+pInput = (choice $ map token ["-f", "--from", "-i", "--input"])
+         *> (inp <$> anyToken <*> anyToken)
          <?> "input"
     where inp x y c = c { input = insert (fromString $ map toLower x)
                                          (fromString y) (input c) }
 
 pOutput :: IsString a => Parser [String] (Config a -> Config a)
-pOutput = (token "-o" <|> token "--output") *> (out <$> anyToken <*> anyToken)
+pOutput = (choice $ map token ["-o", "--output", "-t", "--to"])
+          *> (out <$> anyToken <*> anyToken)
           <?> "output"
     where out x y c = c { output = (fromString x, fromString y) : output c }
 
