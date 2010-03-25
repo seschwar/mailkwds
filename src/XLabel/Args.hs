@@ -22,8 +22,8 @@ import Parsimony hiding (empty, labels)
 import Parsimony.Error (newErrorUnknown)
 import Parsimony.Pos (incSourceColumn)
 import Parsimony.Stream (Stream, Token(..))
+import XLabel.ByteString (ByteString)
 import XLabel.Core (foldHeaders)
-import XLabel.Str (Str)
 
 -- | The configuration options for the program.
 data Config a = Config
@@ -48,7 +48,7 @@ instance Show a => Show (Config a) where
         ++ " }"
 
 -- | Parse the command line arguments and create an appropriate configuration.
-parseArgs :: [String] -> Either String (Config Str)
+parseArgs :: [String] -> Either String (Config ByteString)
 parseArgs args = ((++) "Unable to parse command line arguments:\n" . show)
                  +++ (sanitizeConfig . \x -> foldr (>>>) id x $ config)
                  $ parse pArgs args  -- (>>>) ensures that the map's values get

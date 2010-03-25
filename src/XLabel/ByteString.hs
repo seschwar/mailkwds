@@ -1,15 +1,14 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 -- |
--- Module:     XLabel.Str.ByteString
+-- Module:     XLabel.ByteString
 -- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 -- License:    ISC
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module XLabel.Str.ByteString
+module XLabel.ByteString
     ( module Data.ByteString.Lazy.Char8
-    , Str
     , (++)
     , toLower
     , toUpper
@@ -43,8 +42,6 @@ import System.IO (Handle, IO, stdin)
 import Data.String (fromString)
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Char as C
-
-type Str = ByteString
 
 (++) :: ByteString -> ByteString -> ByteString
 (++) = append

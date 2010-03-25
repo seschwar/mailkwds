@@ -21,9 +21,9 @@ applyEach fs x = fmap ($ x) fs
 -- second element respectively before they are 'mappend'ed.
 mconscat :: Monoid m => (m -> m -> Bool) -> (m -> m) -> (m -> m) -> [m] -> [m]
 mconscat prd f g = foldr h []
-    where h x xs = let (x', xs') = partition x xs
-                   in  f x `mappend` g x' : xs'
-
-          partition x (x':xs) | prd x x' = (x', xs)
-          partition _ xs                 = (mempty, xs)
+  where
+    h x xs = let (x', xs') = partition x xs
+             in  f x `mappend` g x' : xs'
+    partition x (x':xs) | prd x x' = (x', xs)
+    partition _ xs                 = (mempty, xs)
 

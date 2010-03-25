@@ -13,9 +13,9 @@ import Control.Monad (when)
 import Data.List (nub)
 import System.Environment (getArgs)
 import System.Exit (exitSuccess)
-import XLabel.Core (rewriteMsg, toHeaders)
 import XLabel.Args (Config(..), parseArgs)
-import qualified XLabel.Str as S
+import XLabel.Core (rewriteMsg, toHeaders)
+import qualified XLabel.ByteString as S
 
 -- | Rewrites the X-Label header fields from a message read from stdin to
 -- stdout.
@@ -32,30 +32,33 @@ main = do
 
 helpMessage:: String
 helpMessage = unlines $
-              [ "Usage: x-label [OPTION]... [--] COMMAND [LABEL]..."
-              , "Change the set of labels in the specified headers."
-              , ""
-              , "Options:"
-              , "    -c, --catenate  catenate folded headers"
-              , "    -h, --help      print usage information"
-              , "    -f HEADER SEP, --from HEADER SEP, -i HEADER SEP, --input HEADER SEP"
-              , "                    read labels listed in HEADER separated by SEP"
-              , "    -o HEADER SEP, --output HEADER SEP, -t HEADER SEP, --to HEADER SEP"
-              , "                    print HEADER with a list of labels separated by SEP"
-              , "    -v, --version   print version information"
-              , "Commands:"
-              , "    add             add LABELs"
-              , "    clear           remove all labels"
-              , "    remove          remove LABELs"
-              , "    set             replace with LABELs"
-              , "    tidy            remove duplicated labels"
-              ]
+    [ "Usage: x-label [OPTION]... [--] COMMAND [LABEL]..."
+    , "Change the set of labels in the specified headers."
+    , ""
+    , "Options:"
+    , "    -c, --catenate  catenate folded headers"
+    , "    -h, --help      print usage information"
+    , "    -f HEADER SEP, --from HEADER SEP, -i HEADER SEP, --input HEADER SEP"
+    , "                    read labels listed in HEADER separated by SEP"
+    , "    -o HEADER SEP, --output HEADER SEP, -t HEADER SEP, --to HEADER SEP"
+    , "                    print HEADER with a list of labels separated by SEP"
+    , "    -v, --version   print version information"
+    , "Commands:"
+    , "    add             add LABELs"
+    , "    clear           remove all labels"
+    , "    remove          remove LABELs"
+    , "    set             replace with LABELs"
+    , "    tidy            remove duplicated labels"
+    ]
+
+versionNumber :: String
+versionNumber = "0.0"
 
 versionMessage :: String
 versionMessage = unlines $
-                 [ "x-label 0.0"
-                 , "Copyright (C) 2009-2010, Sebastian Schwarz"
-                 , "This is free software licensed under the ISC license."
-                 , "There is absolutely no warranty."
-                 ]
+    [ "x-label " ++ versionNumber
+    , "Copyright (C) 2009-2010, Sebastian Schwarz"
+    , "This is free software licensed under the ISC license."
+    , "There is absolutely no warranty."
+    ]
 

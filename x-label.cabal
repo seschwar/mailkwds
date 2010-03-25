@@ -21,21 +21,9 @@ source-repository head
     type:     mercurial
     location: http://bitbucket.org/seschwar/x-label/
 
-flag ByteString
-    description: Use Data.ByteString.Lazy.Char8 as string implementation.
-    default:     True
-
 flag test
+    default:     False
     description: Build the test executable.
-    default:     False
-
-flag Text
-    description: Use Data.Text.Lazy as string implementation.
-    default:     False
-
-flag String
-    description: Use Data.Char and Data.List as string implementation.
-    default:     False
 
 executable test
     if flag(test)
@@ -51,29 +39,17 @@ executable test
     ghc-options:    -O2 -Wall -hide-all-packages
 
 executable x-label
-    if flag(ByteString)
-        build-depends: bytestring >= 0.9 && < 0.10
-        cpp-options:   -D__STRING__=ByteString
-        other-modules: XLabel.Str.ByteString
-    if flag(Text)
-        build-depends: text >= 0.7 && < 0.8
-        cpp-options:   -D__STRING__=Text
-        other-modules: XLabel.Str.Text
-    if flag(String)
-        build-depends: split >= 0.1 && < 0.2
-        cpp-options:   -D__STRING__=String
-        other-modules: XLabel.Lst.List,
-                       XLabel.Str.String
     build-depends:  base >= 4.2 && < 4.3,
+                    bytestring >= 0.9 && < 0.10,
                     containers >= 0.3 && < 0.4,
                     mtl >= 1.1 && < 1.2,
                     parsimony >= 1 && < 1.1
     hs-source-dirs: src
     main-is:        XLabel.hs
     other-modules:  XLabel.Args,
+                    XLabel.ByteString,
                     XLabel.Core,
-                    XLabel.Str,
                     XLabel.Utils
     ghc-options:    -O2 -Wall -hide-all-packages
-    extensions:     CPP, OverloadedStrings
+    extensions:     OverloadedStrings
 
