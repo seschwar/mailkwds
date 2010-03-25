@@ -14,10 +14,12 @@ import Control.Applicative (liftA2)
 import Control.Arrow ((+++))
 import Control.Category ((>>>))
 import Data.Char (toLower)
+import Data.List (isPrefixOf)
 import Data.List (union, nub, (\\))
 import Data.Map (Map, empty, insert, singleton)
 import Data.String (IsString(..))
 import Parsimony hiding (empty, labels)
+import Parsimony.Error (newErrorUnknown)
 import Parsimony.Pos (incSourceColumn)
 import Parsimony.Stream (Stream, Token(..))
 import XLabel.Core (foldHeaders)
@@ -36,29 +38,30 @@ data Config a = Config
 
 instance Show a => Show (Config a) where
     show x = "Config "
-             ++ "{ catenate :: [a] -> [a]"
-             ++ ", command :: [a] -> [a] -> [a]"
-             ++ ", help = " ++ show (help x)
-             ++ ", input = " ++ show (input x)
-             ++ ", labels = " ++ show (labels x)
-             ++ ", output = " ++ show (output x)
-             ++ ", version = " ++ show (version x)
-             ++ " }"
+        ++ "{ catenate :: [a] -> [a]"
+        ++ ", command :: [a] -> [a] -> [a]"
+        ++ ", help = " ++ show (help x)
+        ++ ", input = " ++ show (input x)
+        ++ ", labels = " ++ show (labels x)
+        ++ ", output = " ++ show (output x)
+        ++ ", version = " ++ show (version x)
+        ++ " }"
 
 -- | Parse the command line arguments and create an appropriate configuration.
 parseArgs :: [String] -> Either String (Config Str)
 parseArgs args = ((++) "Unable to parse command line arguments:\n" . show)
                  +++ (sanitizeConfig . \x -> foldr (>>>) id x $ config)
                  $ parse pArgs args  -- (>>>) ensures that the map's values get
-    where config = Config            -- overwritten correctly
-              { catenate = foldHeaders
-              , command  = flip const
-              , help     = False
-              , input    = empty
-              , labels   = []
-              , output   = []
-              , version  = False
-              }
+  where
+    config = Config                  -- overwritten correctly
+        { catenate = foldHeaders
+        , command  = flip const
+        , help     = False
+        , input    = empty
+        , labels   = []
+        , output   = []
+        , version  = False
+        }
 
 -- | Ensure a halfway sane configuration.
 sanitizeConfig :: (Eq a, IsString a) => Config a -> Config a
@@ -67,10 +70,11 @@ sanitizeConfig c = c
     , output   = sanitizeOutput $ output c
     , labels   = nub . reverse $ labels c  -- output labels in the same order
     }                                      -- as specified on the command line
-    where sanitizeInput  x | x == empty = singleton "x-label" ","
-                           | otherwise  = x
-          sanitizeOutput [] = [("X-Label", ", ")]
-          sanitizeOutput x  = nub $ reverse x  -- adjust order to command line
+  where
+    sanitizeInput  x | x == empty = singleton "x-label" ","
+                     | otherwise  = x
+    sanitizeOutput [] = [("X-Label", ", ")]
+    sanitizeOutput x  = nub $ reverse x  -- adjust order to command line
 
 --------------------------------------------------------------------------------
 -- The command line argument 'Parser'.
@@ -97,7 +101,7 @@ pArgs = many pOption <+> pSep <+> fmap (:[]) pCommand <+> many pLabel
     where (<+>) = liftA2 (++)
 
 pOption :: (IsString a, Ord a) => Parser [String] (Config a -> Config a)
-pOption = pCat <|> pHelp <|> pInput <|> pOutput <|> pVersion <?> "option"
+pOption = pCat <|> pHelp <|> pInput <|> pOutput <|> pVersion <|> pUnrecognized <?> "option"
 
 pCat :: Parser [String] (Config a -> Config a)
 pCat = (token "-c" <|> token "--cat") *> pure (cat id) <?> "catenate"
@@ -111,8 +115,9 @@ pInput :: (IsString a, Ord a) => Parser [String] (Config a -> Config a)
 pInput = (choice $ map token ["-f", "--from", "-i", "--input"])
          *> (inp <$> anyToken <*> anyToken)
          <?> "input"
-    where inp x y c = c { input = insert (fromString $ map toLower x)
-                                         (fromString y) (input c) }
+  where
+    inp x y c = c { input =
+        insert (fromString $ map toLower x) (fromString y) (input c) }
 
 pOutput :: IsString a => Parser [String] (Config a -> Config a)
 pOutput = (choice $ map token ["-o", "--output", "-t", "--to"])
@@ -124,20 +129,26 @@ pVersion :: Parser [String] (Config a -> Config a)
 pVersion = (token "-v" <|> token "--version") *> pure (ver True) <?> "version"
     where ver x c = c { version = x }
 
+pUnrecognized :: Parser [String] (Config a -> Config a)
+pUnrecognized = satisfy (liftA2 (&&) (isPrefixOf "-") (/= "--"))
+                *> parseError newErrorUnknown
+                <?> "unrecognized"
+
 pSep :: Parser [String] [Config a -> Config a]
 pSep = skip (token "--") *> pure [] <?> "separator"
 
 pCommand :: Eq a => Parser [String] (Config a -> Config a)
 pCommand = (<?> "command") . choice . map (\(c, f) -> token c *> pure (com f))
            $ cmds
-    where com x c = c { command = x }
-          cmds =
-              [ ("add",    flip union)
-              , ("clear",  const $ const [])
-              , ("set",    const)
-              , ("remove", flip (\\))
-              , ("tidy",   flip const)
-              ]
+  where
+    com x c = c { command = x }
+    cmds =
+        [ ("add",    flip union)
+        , ("clear",  const $ const [])
+        , ("set",    const)
+        , ("remove", flip (\\))
+        , ("tidy",   flip const)
+        ]
 
 pLabel :: IsString a => Parser [String] (Config a -> Config a)
 pLabel = lab <$> anyToken <?> "label"
