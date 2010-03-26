@@ -15,29 +15,29 @@ import Data.Maybe (catMaybes)
 import Prelude hiding (lookup)
 import XLabel.ByteString (ByteString)
 import XLabel.Utils (applyEach, mconscat)
-import qualified XLabel.ByteString as S
+import qualified XLabel.ByteString as B
 
 -- | Rewrites an email message by using 'rewriteHdrs' on its unfolded header.
 rewriteMsg :: Map ByteString ByteString -> ([ByteString] -> [Maybe ByteString]) -> ([ByteString] -> [ByteString])
               -> [ByteString] -> [ByteString]
-rewriteMsg m f g msg = let (h, b) = break S.null msg
+rewriteMsg m f g msg = let (h, b) = break B.null msg
                        in  (g . rewriteHdrs m f . unfoldHeaders) h ++ b
 
 -- | Appends a 'String' beginning with a whitespace character to the previous
 -- 'String' in the list removing any superfluous intermediate whitespace
 -- characters.
 unfoldHeaders :: [ByteString] -> [ByteString]
-unfoldHeaders = mconscat (const $ liftA2 (&&) (not . S.null) (isSpace . S.head))
-                S.stripEnd (pad . S.stripStart)
+unfoldHeaders = mconscat (const $ liftA2 (&&) (not . B.null) (isSpace . B.head))
+                B.stripEnd (pad . B.stripStart)
     where pad "" = ""
-          pad x  = S.cons ' ' x
+          pad x  = B.cons ' ' x
 
 -- | Folds headers longer than 78 character in multiple lines.
 foldHeaders :: [ByteString] -> [ByteString]
-foldHeaders = concatMap $ mconscat f id id . pad . S.words
+foldHeaders = concatMap $ mconscat f id id . pad . B.words
     where pad []     = []
-          pad (x:xs) = x : map (S.cons ' ') xs
-          f x y = S.length x + S.length y <= 78
+          pad (x:xs) = x : map (B.cons ' ') xs
+          f x y = B.length x + B.length y <= 78
 
 -- | Rewrite the headers of a message by appending the extraced and modified
 -- 'Label's if they are not empty.
@@ -48,18 +48,18 @@ rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
 -- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
 -- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
 extractLabels :: Map ByteString ByteString -> ByteString -> Writer [ByteString] (Maybe ByteString)
-extractLabels m h = let (n, b) = S.break (== ':') h
-                    in  if ":" `S.isPrefixOf` b
-                           then case lookup (S.toLower n) m of
+extractLabels m h = let (n, b) = B.break (== ':') h
+                    in  if ":" `B.isPrefixOf` b
+                           then case lookup (B.toLower n) m of
                                      Nothing  -> return $ Just h
-                                     Just sep -> tell (toLabels sep $ S.tail b)
+                                     Just sep -> tell (toLabels sep $ B.tail b)
                                                  >> return Nothing
                            else return $ Just h
 
 -- | Splits the body of the given header field on the given substring into
 -- 'Label's.
 toLabels :: ByteString -> ByteString -> [ByteString]
-toLabels x = filter (not . S.null) . map S.strip . S.splitOn x
+toLabels x = filter (not . B.null) . map B.strip . B.splitOn x
 
 -- | Produces an email header field for all specified fields.
 toHeaders :: [(ByteString, ByteString)] -> [ByteString] -> [Maybe ByteString]
@@ -68,5 +68,5 @@ toHeaders xs = applyEach $ map (uncurry toHeader) xs
 -- | Produces an email header field of the given name and the 'Label's.
 toHeader :: ByteString -> ByteString -> [ByteString] -> Maybe ByteString
 toHeader _   _   [] = Nothing
-toHeader hdr sep ls = Just $ hdr `S.append` ": " `S.append` S.intercalate sep ls
+toHeader hdr sep ls = Just $ hdr `B.append` ": " `B.append` B.intercalate sep ls
 

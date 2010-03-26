@@ -15,7 +15,7 @@ import System.Environment (getArgs)
 import System.Exit (exitSuccess)
 import XLabel.Args (Config(..), parseArgs)
 import XLabel.Core (rewriteMsg, toHeaders)
-import qualified XLabel.ByteString as S
+import qualified XLabel.ByteString as B
 
 -- | Rewrites the X-Label header fields from a message read from stdin to
 -- stdout.
@@ -28,7 +28,7 @@ main = do
     when (help config) (putStr helpMessage >> exitSuccess)
     when (version config) (putStr versionMessage >> exitSuccess)
     let f = toHeaders (output config) . (command config $ labels config) . nub
-    S.interact $ S.unlines . rewriteMsg (input config) f (catenate config) . S.lines
+    B.interact $ B.unlines . rewriteMsg (input config) f (catenate config) . B.lines
 
 helpMessage:: String
 helpMessage = unlines $
