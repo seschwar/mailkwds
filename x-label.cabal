@@ -27,16 +27,20 @@ flag test
 
 executable test
     if flag(test)
-        build-depends: QuickCheck >= 2 && < 3, test-framework < 1,
-                       test-framework-quickcheck2 < 1
+        build-depends: QuickCheck >= 2.1 && < 2.2,
+                       test-framework >= 0.2 && < 0.3,
+                       test-framework-quickcheck2 >= 0.2 && < 0.3
         buildable:     True
     else
         buildable:     False
     hs-source-dirs: src, test
     main-is:        Test.hs
-    other-modules:  XLabel.Core,
+    other-modules:  XLabel.Args,
+                    XLabel.ByteString,
+                    XLabel.Core,
                     XLabel.Utils
     ghc-options:    -O2 -Wall -hide-all-packages
+    extensions:     OverloadedStrings
 
 executable x-label
     build-depends:  base >= 4.2 && < 4.3,

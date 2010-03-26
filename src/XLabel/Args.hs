@@ -1,6 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# OPTIONS -fno-warn-orphans #-}
-
 -- |
 -- Module:     XLabel.Args
 -- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>

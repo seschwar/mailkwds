@@ -1,3 +1,5 @@
+{-# OPTIONS -fno-warn-orphans #-}
+
 -- |
 -- Module:     Main
 -- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
@@ -8,48 +10,87 @@
 module Main where
 
 import Control.Applicative (liftA2)
+import Control.Arrow (first, (***))
 import Data.Char (isSpace)
-import Data.List (all)
+import Data.List (nub)
 import Test.Framework (Test, defaultMain, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.QuickCheck
+import Test.QuickCheck hiding (labels)
+import XLabel.Args
 import XLabel.Core
 import XLabel.Utils
+import qualified Data.Map as M
+import qualified XLabel.ByteString as B
+import XLabel.ByteString (ByteString)
+
+import System.IO.Unsafe (unsafePerformIO)
+import System.IO (hPutStrLn, stderr)
+
+debug :: Show a => String -> a -> a
+debug x y = unsafePerformIO $ do
+    hPutStrLn stderr $ x ++ ": " ++ show y
+    return y
 
 main :: IO ()
 main = defaultMain tests
 
 tests :: [Test]
 tests =
-    [ testGroup "utils"
-        [ testProperty "cat1" prop_cat1
-        , testProperty "cat2" prop_cat1
+    [ testGroup "argument parsing"
+        [ testProperty "input order"  prop_args1
+        , testProperty "output order" prop_args2
+        , testProperty "label order"  prop_args3
+        ]
+    , testGroup "utils"
+        [ testProperty "catenate all"  prop_cat1
+        , testProperty "catenate none" prop_cat2
         ]
     , testGroup "header folding"
-        [ testProperty "fold1" prop_fold1
-        , testProperty "fold2" prop_fold2
-        , testProperty "fold3" prop_fold3
-        , testProperty "fold4" prop_fold4
-        , testProperty "fold5" prop_fold5
-        , testProperty "fold6" prop_fold6
+        [ testProperty "unfold twice"       prop_fold1
+--      , testProperty "fold twice"         prop_fold2
+        , testProperty "ufu"                prop_fold3
+        , testProperty "fuf"                prop_fold4
+        , testProperty "folded or no space" prop_fold5
+        , testProperty "fold6"              prop_fold6
         ]
     ]
 
-prop_cat1 xs = (not . null) (xs :: [[Int]]) ==>
+instance Arbitrary ByteString where
+    arbitrary = fmap B.pack arbitrary
+    shrink    = fmap B.pack . shrink . B.unpack
+
+prop_args1 xs = (not . null) xs ==>
+    case parseArgs $ (xs >>= \(x, y) -> ["-i", x, y]) ++ ["--", "tidy"] of
+         Left  _   -> False
+         Right cfg -> input cfg == (M.fromList . map (first B.toLower) . map (B.pack *** B.pack) $ xs)
+prop_args2 xs = (not . null) xs ==>
+    case parseArgs $ (xs >>= \(x, y) -> ["-o", x, y]) ++ ["--", "tidy"] of
+         Left  _   -> False
+         Right cfg -> output cfg  == (fmap (B.pack *** B.pack) $ nub xs)
+prop_args3 xs = case parseArgs $ ["--", "tidy"] ++ xs of
+                     Left  _   -> False
+                     Right cfg -> labels cfg == (fmap B.pack $ nub xs)
+
+prop_cat1 :: [[Int]] -> Property
+prop_cat1 xs = (not . null) xs ==>
     mconscat (const $ const True) id id xs == [concat xs]
+
+prop_cat2 :: [[Int]] -> Bool
 prop_cat2 xs = mconscat (const $ const False) id id xs == xs
 
-prop_fold1 xs = all (not . null) xs ==>
+prop_fold1 xs = all (not . B.null) xs ==>
     (unfoldHeaders . unfoldHeaders $ xs) == unfoldHeaders xs
-prop_fold2 xs = all (not . null) xs ==>
+prop_fold2 xs = all (not . B.null) xs ==>
     (foldHeaders . foldHeaders $ xs) == foldHeaders xs
-prop_fold3 xs = all (not . null) xs ==>
+prop_fold3 xs = all (not . B.null) xs ==>
     (unfoldHeaders . foldHeaders . unfoldHeaders $ xs) == unfoldHeaders xs
-prop_fold4 xs = all (not . null) xs ==>
+prop_fold4 xs = all (not . B.null) xs ==>
     (unfoldHeaders . foldHeaders . unfoldHeaders . foldHeaders $ xs)
     == (unfoldHeaders . foldHeaders $ xs)
-prop_fold5 xs = all f $ foldHeaders xs
-    where f = liftA2 (||) ((<= 78) . length) (not . any isSpace . stripStart)
-prop_fold6 xs = all (not . null) xs ==>
-    all (not . isSpace) . map head $ unfoldHeaders xs
+prop_fold5 xs =  all (not . B.null) xs ==>
+    all f $ foldHeaders xs
+  where
+    f = liftA2 (||) ((<= 78) . B.length) (not . B.any isSpace . B.stripStart)
+prop_fold6 xs = all (not . B.null) xs ==>
+    all (not . isSpace) . map B.head $ unfoldHeaders xs
 
