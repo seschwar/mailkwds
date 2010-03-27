@@ -32,7 +32,7 @@ main = do
 
 helpMessage:: String
 helpMessage = unlines $
-    [ "Usage: x-label [OPTION]... [--] COMMAND [LABEL]..."
+    [ "Usage: x-label [OPTION]... [--] [COMMAND [LABEL]...]"
     , "Change the set of labels in the specified headers."
     , ""
     , "Options:"

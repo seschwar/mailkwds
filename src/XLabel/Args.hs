@@ -95,7 +95,7 @@ sanitizeConfig c = c
 -- | Parse a list of 'String's to a list of 'Config' modifying functions.
 pArgs :: (IsString a, Monad m, Ord a)
     => ParsecT [String] u m [Config a -> Config a]
-pArgs = many pOption <+> pSep <+> fmap (:[]) pCommand <+> many pLabel
+pArgs = many pOption <+> pSep <+> pCommand
     where (<+>) = liftA2 (++)
 
 pOption :: (IsString a, Monad m, Ord a)
@@ -134,8 +134,12 @@ pVersion = (token "-v" <|> token "--version") *> pure (ver True) <?> "version"
 pSep :: Monad m => ParsecT [String] u m [a]
 pSep = optional (token "--") *> pure [] <?> "separator"
 
-pCommand :: (Eq a, Monad m) => ParsecT [String] u m (Config a -> Config a)
-pCommand = (choice . map (\(c, f) -> token c *> pure (com f) <?> "command")
+pCommand :: (Eq a, IsString a, Monad m)
+    => ParsecT [String] u m [Config a -> Config a]
+pCommand = option [] $ liftA2 (++) (fmap (:[]) pCommands) (many pLabel)
+
+pCommands :: (Eq a, Monad m) => ParsecT [String] u m (Config a -> Config a)
+pCommands = (choice . map (\(c, f) -> token c *> pure (com f) <?> "command")
     $ cmds) <|> unexpected . (++) "unknown command: " =<< anyToken
     <|> unexpected "no command given"
   where
