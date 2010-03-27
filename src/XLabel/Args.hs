@@ -105,7 +105,7 @@ pOption = pCat <|> pHelp <|> pInput <|> pOutput <|> pVersion
     =<< satisfy (liftA2 (&&) (isPrefixOf "-") (/= "--"))
 
 pCat :: Monad m => ParsecT [String] u m (Config a -> Config a)
-pCat = (token "-c" <|> token "--cat") *> pure (cat id) <?> "catenate"
+pCat = (token "-c" <|> token "--catenate") *> pure (cat id) <?> "catenate"
     where cat x c = c { catenate = x }
 
 pHelp :: Monad m => ParsecT [String] u m (Config a -> Config a)
