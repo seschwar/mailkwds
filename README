@@ -1,14 +1,14 @@
 % X-LABEL(1) 0.0
 % Sebastian Schwarz <seschwar@googlemail.com>
-% 2010-01-21
+% 2010-06-10
 
 # NAME
 
-x-label -- X-Label email header rewriter
+x-label -- edit email keywords/labels/tags stored in a message header field
 
 # SYNOPSIS
 
-`x-label` [*options*] [--] [*command* [*label*]...]
+`x-label` [*options*] [\--] [*command* [*label*]...]
 
 # DESCRIPTION
 
@@ -18,23 +18,23 @@ x-label -- X-Label email header rewriter
 
 # OPTIONS
 
--c, --catenate
+-c, \--catenate
 :   Catenate the mail headers instead of refolding them to fit the 78 characters per line limit.
 
--h, --help
+-h, \--help
 :   Print usage information.
 
--f *HEADER* *SEPARATOR*, --from *HEADER* *SEPARATOR*, -i *HEADER* *SEPARATOR*, --input *HEADER* *SEPARATOR*
+-f *HEADER* *SEPARATOR*, \--from *HEADER* *SEPARATOR*, -i *HEADER* *SEPARATOR*, \--input *HEADER* *SEPARATOR*
 :   Read and parse the *HEADER* by splitting it on *SEPARATOR*.
     If given multiple times the parsed labels from all *HEADER*s will be joined before being processed.
     If this option is not specified `x-label` defaults to `--input X-Label ','`.
 
--o *HEADER* *SEPARATOR*, --output *HEADER* *SEPARATOR*, -t *HEADER* *SEPARATOR*, --to *HEADER* *SEPARATOR*
+-o *HEADER* *SEPARATOR*, \--output *HEADER* *SEPARATOR*, -t *HEADER* *SEPARATOR*, \--to *HEADER* *SEPARATOR*
 :   Print the processed labels in the field body of *HEADER* as a list separated by *SEPARATOR*.
     If specified multiple times all *HEADER*s will be printed with the complete set of labels.
     If this option is not specified `x-label` defaults to `--output X-Label ', '`.
 
--v, --version
+-v, \--version
 :   Print version information.
 
 # COMMANDS
@@ -57,20 +57,23 @@ tidy
 # BUGS
 
 `x-label` strips trailing whitespace characters from the header fields.
-It fails on mails with a encoding different from the one of the current locale.
 It also does not use MIME de- and encoding on the label header fields.
 
-If you find more bug, please report them at <http://bitbucket.org/seschwar/x-label/issues>.
+If you find more bugs, please report them at <http://bitbucket.org/seschwar/x-label/issues>.
 
 # EXAMPLES
 
-Synchronize Mutt's X-Label and Thunderbirds X-Mozilla-Keys headers:
+Combine Mutt's X-Label and Thunderbird's X-Mozilla-Keys header fields into the standardized Keywords header field:
 
-    x-label -i X-Label , -i X-Mozilla-Keys ' ' -o X-Label ', ' -o X-Mozilla-Keys ' ' add synced
+    x-label --from X-Label , --from X-Mozilla-Keys ' ' tidy
+
+Synchronize Dovecot's X-Keywords, Mutt's X-Label and Thunderbird's X-Mozilla-Keys header fields:
+
+    x-label -i X-Keywords ' ' -i X-Label , -i X-Mozilla-Keys ' ' -o X-Keywords ' ' -o X-Label ', ' -o X-Mozilla-Keys ' ' tidy
 
 # SEE ALSO
 
-`formail`(1), `reformail`(1).
+`formail`(1), `maildirkw`(1), `reformail`(1), RFC 822, RFC 2822
 
 Homepage: <http://bitbucket.org/seschwar/x-label>
 

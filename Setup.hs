@@ -1,11 +1,14 @@
 #!/usr/bin/env runhaskell
 
+module Main where
+
 import Distribution.Simple
 import Distribution.Simple.LocalBuildInfo
 import Distribution.Simple.PreProcess
 import System.FilePath ((</>))
 import System.Cmd (rawSystem)
 
+main :: IO ()
 main = defaultMainWithHooks simpleUserHooks
     { runTests            = runTests'
     , hookedPreProcessors = [("md", ppPandoc), ("text", ppPandoc)]

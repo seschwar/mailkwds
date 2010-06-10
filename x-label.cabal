@@ -1,7 +1,7 @@
 name:               x-label
 version:            0.0
 category:           Email, Text
-synopsis:           An X-Label email header editor.
+synopsis:           Edit email keywords/labels/tags stored in a message header field.
 description:
     x-label allows not only to add but also operate on a existing
     X-Label email header.  For example it is possible to add or remove
