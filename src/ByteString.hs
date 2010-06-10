@@ -1,13 +1,13 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 -- |
--- Module:     XLabel.ByteString
+-- Module:     ByteString
 -- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 -- License:    ISC
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module XLabel.ByteString
+module ByteString
     ( module Data.ByteString.Lazy.Char8
     , (++)
     , toLower

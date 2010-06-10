@@ -1,64 +1,72 @@
-{-# LANGUAGE BangPatterns #-}
-
 -- |
--- Module:     Main
+-- Module:     XLabel
 -- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 -- License:    ISC
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module Main where
+module XLabel where
 
-import Control.Monad (when)
-import Data.List (nub)
-import System.Environment (getArgs)
-import System.Exit (exitSuccess)
-import XLabel.Args (Config(..), parseArgs)
-import XLabel.Core (rewriteMsg, toHeaders)
-import qualified XLabel.ByteString as B
+import Control.Applicative (liftA2)
+import Control.Monad.Writer.Lazy (Writer, runWriter, tell)
+import Data.Char (isSpace)
+import Data.Map (Map, lookup)
+import Data.Maybe (catMaybes)
+import Prelude hiding (lookup)
+import ByteString (ByteString)
+import Utils (applyEach, mconscat)
+import qualified ByteString as B
 
--- | Rewrites the X-Label header fields from a message read from stdin to
--- stdout.
-main :: IO ()
-main = do
-    args <- getArgs
-    let !config = case parseArgs args of
-                       Left  msg -> error msg
-                       Right cfg -> cfg
-    when (help config) (putStr helpMessage >> exitSuccess)
-    when (version config) (putStr versionMessage >> exitSuccess)
-    let f = toHeaders (output config) . (command config $ labels config) . nub
-    B.interact $ B.unlines . rewriteMsg (input config) f (catenate config) . B.lines
+-- | Rewrites an email message by using 'rewriteHdrs' on its unfolded header.
+rewriteMsg :: Map ByteString ByteString -> ([ByteString] -> [Maybe ByteString]) -> ([ByteString] -> [ByteString])
+              -> [ByteString] -> [ByteString]
+rewriteMsg m f g msg = let (h, b) = break B.null msg
+                       in  (g . rewriteHdrs m f . unfoldHeaders) h ++ b
 
-helpMessage:: String
-helpMessage = unlines $
-    [ "Usage: x-label [OPTION]... [--] [COMMAND [LABEL]...]"
-    , "Change the set of labels in the specified headers."
-    , ""
-    , "Options:"
-    , "    -c, --catenate  catenate folded headers"
-    , "    -h, --help      print usage information"
-    , "    -f HEADER SEP, --from HEADER SEP, -i HEADER SEP, --input HEADER SEP"
-    , "                    read labels listed in HEADER separated by SEP"
-    , "    -o HEADER SEP, --output HEADER SEP, -t HEADER SEP, --to HEADER SEP"
-    , "                    print HEADER with a list of labels separated by SEP"
-    , "    -v, --version   print version information"
-    , "Commands:"
-    , "    add             add LABELs"
-    , "    clear           remove all labels"
-    , "    remove          remove LABELs"
-    , "    set             replace with LABELs"
-    , "    tidy            remove duplicated labels"
-    ]
+-- | Appends a 'String' beginning with a whitespace character to the previous
+-- 'String' in the list removing any superfluous intermediate whitespace
+-- characters.
+unfoldHeaders :: [ByteString] -> [ByteString]
+unfoldHeaders = mconscat (const $ liftA2 (&&) (not . B.null) (isSpace . B.head))
+                B.stripEnd (pad . B.stripStart)
+    where pad "" = ""
+          pad x  = B.cons ' ' x
 
-versionNumber :: String
-versionNumber = "0.0"
+-- | Folds headers longer than 78 character in multiple lines.
+foldHeaders :: [ByteString] -> [ByteString]
+foldHeaders = concatMap $ mconscat f id id . pad . B.words
+    where pad []     = []
+          pad (x:xs) = x : map (B.cons ' ') xs
+          f x y = B.length x + B.length y <= 78
 
-versionMessage :: String
-versionMessage = unlines $
-    [ "x-label " ++ versionNumber
-    , "Copyright (C) 2009-2010, Sebastian Schwarz"
-    , "This is free software licensed under the ISC license."
-    , "There is absolutely no warranty."
-    ]
+-- | Rewrite the headers of a message by appending the extraced and modified
+-- 'Label's if they are not empty.
+rewriteHdrs :: Map ByteString ByteString -> ([ByteString] -> [Maybe ByteString]) -> [ByteString] -> [ByteString]
+rewriteHdrs m f hs = let (hs', ls) = runWriter $ mapM (extractLabels m) hs
+                     in  catMaybes $ hs' ++ f ls
+
+-- | Extracts the 'Label's of a single header by 'tell'ing them to a 'Writer'
+-- 'Monad' and dropping them from the message by replacing them with 'Nothing'.
+extractLabels :: Map ByteString ByteString -> ByteString -> Writer [ByteString] (Maybe ByteString)
+extractLabels m h = let (n, b) = B.break (== ':') h
+                    in  if ":" `B.isPrefixOf` b
+                           then case lookup (B.toLower n) m of
+                                     Nothing  -> return $ Just h
+                                     Just sep -> tell (toLabels sep $ B.tail b)
+                                                 >> return Nothing
+                           else return $ Just h
+
+-- | Splits the body of the given header field on the given substring into
+-- 'Label's.
+toLabels :: ByteString -> ByteString -> [ByteString]
+toLabels x = filter (not . B.null) . map B.strip . B.splitOn x
+
+-- | Produces an email header field for all specified fields.
+toHeaders :: [(ByteString, ByteString)] -> [ByteString] -> [Maybe ByteString]
+toHeaders xs = applyEach $ map (uncurry toHeader) xs
+
+-- | Produces an email header field of the given name and the 'Label's.
+toHeader :: ByteString -> ByteString -> [ByteString] -> Maybe ByteString
+toHeader _   _   [] = Nothing
+toHeader hdr sep ls = Just $ hdr `B.append` ": " `B.append` B.intercalate sep ls
 

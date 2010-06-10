@@ -5,7 +5,7 @@
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module XLabel.Utils
+module Utils
     ( applyEach
     , mconscat
     ) where

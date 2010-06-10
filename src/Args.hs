@@ -1,11 +1,11 @@
 -- |
--- Module:     XLabel.Args
+-- Module:     Args
 -- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 -- License:    ISC
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module XLabel.Args (Config(..), parseArgs) where
+module Args (Config(..), parseArgs) where
 
 import Control.Applicative (Applicative(..), liftA2, (<$>))
 import Control.Arrow ((+++))
@@ -16,8 +16,8 @@ import Data.Map (Map, empty, insert, singleton)
 import Data.String (IsString(..))
 import Text.Parsec hiding (labels, satisfy, token)
 import Text.Parsec.Error
-import XLabel.ByteString (ByteString)
-import XLabel.Core (foldHeaders)
+import ByteString (ByteString)
+import XLabel (foldHeaders)
 
 -- | The configuration options for the program.
 data Config a = Config
