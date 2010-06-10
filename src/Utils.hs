@@ -1,7 +1,7 @@
 -- |
 -- Module:     XLabel.Utils
 -- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
--- License:    ISC
+-- License:    MIT
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 

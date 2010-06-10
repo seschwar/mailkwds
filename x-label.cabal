@@ -1,31 +1,32 @@
-Name:               x-label
-Version:            0.0
-Category:           Text
-Synopsis:           An X-Label email header editor.
-Description:
+name:               x-label
+version:            0.0
+category:           Email, Text
+synopsis:           An X-Label email header editor.
+description:
     x-label allows not only to add but also operate on a existing
     X-Label email header.  For example it is possible to add or remove
     certain labels to or from the header.
-Homepage:           http://bitbucket.org/seschwar/x-label/
-Bug-reports:        http://bitbucket.org/seschwar/x-label/issues/
-License:            OtherLicense
-Author:             Sebastian Schwarz <seschwar@googlemail.com>
-Maintainer:         Sebastian Schwarz <seschwar@googlemail.com>
-cabal-version:      >= 1.2
-build-type:         Simple
---data-files:         x-label.1
-extra-source-files: INSTALL, README
+homepage:           http://bitbucket.org/seschwar/x-label/
+copyright:          Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
+license:            MIT
 license-file:       LICENSE
+author:             Sebastian Schwarz <seschwar@googlemail.com>
+maintainer:         Sebastian Schwarz <seschwar@googlemail.com>
+bug-reports:        http://bitbucket.org/seschwar/x-label/issues/
+build-type:         Simple
+cabal-version:      >= 1.2
+extra-source-files: INSTALL, README
+--data-files:         x-label.1
 
-source-repository head
+Source-repository head
     type:     mercurial
     location: http://bitbucket.org/seschwar/x-label/
 
-flag test
+Flag test
     default:     False
     description: Build the test executable.
 
-executable test
+Executable test
     if flag(test)
         build-depends: QuickCheck >= 2.1 && < 2.2,
                        test-framework >= 0.2 && < 0.3,
@@ -42,7 +43,7 @@ executable test
     ghc-options:    -O2 -Wall -hide-all-packages
     extensions:     OverloadedStrings
 
-executable x-label
+Executable x-label
     build-depends:  base >= 4.2 && < 4.3,
                     bytestring >= 0.9 && < 0.10,
                     containers >= 0.3 && < 0.4,
