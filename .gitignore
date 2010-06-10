@@ -1,0 +1,11 @@
+##
+## .gitignore -- gitignore(5) for git(1)
+##
+
+*~
+.*.sw?
+.DS_Store
+/dist/
+TAGS
+tags
+
