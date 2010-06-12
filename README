@@ -12,7 +12,7 @@ x-label -- edit email keywords/labels/tags stored in a message header field
 
 # DESCRIPTION
 
-`x-label` reads a single email message from standard input, searches for a X-Label or other specified header fields, modifies them according to the given command and outputs the modified message with the new header fields at the bottom of the email header section to the standard output.
+`x-label` reads a single email message from standard input, searches for a "Keywords" or other specified header fields, modifies them according to the given command and outputs the modified message with the new header fields at the bottom of the email header section to the standard output.
 
 `x-label` automatically removes any duplicate labels and combines multiple read header fields.
 
@@ -27,12 +27,12 @@ x-label -- edit email keywords/labels/tags stored in a message header field
 -f *HEADER* *SEPARATOR*, \--from *HEADER* *SEPARATOR*, -i *HEADER* *SEPARATOR*, \--input *HEADER* *SEPARATOR*
 :   Read and parse the *HEADER* by splitting it on *SEPARATOR*.
     If given multiple times the parsed labels from all *HEADER*s will be joined before being processed.
-    If this option is not specified `x-label` defaults to `--input X-Label ','`.
+    If this option is not specified `x-label` defaults to `--input Keywords ','`.
 
 -o *HEADER* *SEPARATOR*, \--output *HEADER* *SEPARATOR*, -t *HEADER* *SEPARATOR*, \--to *HEADER* *SEPARATOR*
 :   Print the processed labels in the field body of *HEADER* as a list separated by *SEPARATOR*.
     If specified multiple times all *HEADER*s will be printed with the complete set of labels.
-    If this option is not specified `x-label` defaults to `--output X-Label ', '`.
+    If this option is not specified `x-label` defaults to `--output Keywords ', '`.
 
 -v, \--version
 :   Print version information.

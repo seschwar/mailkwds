@@ -84,9 +84,9 @@ sanitizeConfig c = c
     , labels   = nub . reverse $ labels c  -- output labels in the same order
     }                                      -- as specified on the command line
   where
-    sanitizeInput  x | x == empty = singleton "x-label" ","
+    sanitizeInput  x | x == empty = singleton "keywords" ","
                      | otherwise  = x
-    sanitizeOutput [] = [("X-Label", ", ")]
+    sanitizeOutput [] = [("Keywords", ", ")]
     sanitizeOutput x  = nub $ reverse x  -- adjust order to command line
 
 --------------------------------------------------------------------------------
