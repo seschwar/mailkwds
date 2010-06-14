@@ -1,20 +1,22 @@
-% X-LABEL(1) 0.0
+% MAILKWDS(1) 0.0
 % Sebastian Schwarz <seschwar@googlemail.com>
-% 2010-06-10
+% 2010-06-14
 
 # NAME
 
-x-label -- edit email keywords/labels/tags stored in a message header field
+mailkwds -- edit email keywords/labels/tags stored in a message header field
 
 # SYNOPSIS
 
-`x-label` [*options*] [\--] [*command* [*label*]...]
+`mailkwds` [*options*] [\--] [*command* [*keyword*]...]
 
 # DESCRIPTION
 
-`x-label` reads a single email message from standard input, searches for a "Keywords" or other specified header fields, modifies them according to the given command and outputs the modified message with the new header fields at the bottom of the email header section to the standard output.
+`mailkwds` reads a single email message from standard input, searches for a "Keywords" or other specified header fields, modifies them according to the given command and writes the modified message with the new header fields to the standard output.
 
-`x-label` automatically removes any duplicate labels and combines multiple read header fields.
+It automatically removes any duplicate keywords and combines multiple read header fields.
+
+`mailkwds` is intended to be run as a message filter from a mail delivery agent such as `procmail` or `maildrop`.
 
 # OPTIONS
 
@@ -26,13 +28,13 @@ x-label -- edit email keywords/labels/tags stored in a message header field
 
 -f *HEADER* *SEPARATOR*, \--from *HEADER* *SEPARATOR*, -i *HEADER* *SEPARATOR*, \--input *HEADER* *SEPARATOR*
 :   Read and parse the *HEADER* by splitting it on *SEPARATOR*.
-    If given multiple times the parsed labels from all *HEADER*s will be joined before being processed.
-    If this option is not specified `x-label` defaults to `--input Keywords ','`.
+    If this option is specified multiple times the union of the *HEADER*s' keywords will be processed.
+    If it is not specified `mailkwds` defaults to `--input Keywords ','`.
 
 -o *HEADER* *SEPARATOR*, \--output *HEADER* *SEPARATOR*, -t *HEADER* *SEPARATOR*, \--to *HEADER* *SEPARATOR*
-:   Print the processed labels in the field body of *HEADER* as a list separated by *SEPARATOR*.
-    If specified multiple times all *HEADER*s will be printed with the complete set of labels.
-    If this option is not specified `x-label` defaults to `--output Keywords ', '`.
+:   Print the processed keywords in the header field body of *HEADER* as a list separated by *SEPARATOR*.
+    If this option is specified multiple times all *HEADER*s will be printed, each with the complete set of processed keywords.
+    If it is not specified `mailkwds` defaults to `--output Keywords ', '`.
 
 -v, \--version
 :   Print version information.
@@ -40,40 +42,40 @@ x-label -- edit email keywords/labels/tags stored in a message header field
 # COMMANDS
 
 add
-:   Adds the given labels to the header field body.
+:   Adds the given keywords to the header field body.
 
 clear
 :   Deletes all specified header fields.
 
 set
-:   Overwrites the header field body with the given labels.
+:   Overwrites the header field body with the given keywords.
 
 remove
-:   Removes the specified labels from the header field body.
+:   Removes the specified keywords from the header field body.
 
 tidy
-:   Tidies the specified header field(s) removing duplicates and odd formatting.
+:   Tidies the specified header field(s) by removing duplicates and odd formatting.
 
 # BUGS
 
-`x-label` strips trailing whitespace characters from the header fields.
-It also does not use MIME de- and encoding on the label header fields.
+`mailkwds` strips trailing whitespace characters from the header fields.
+It also does not do MIME de- and encoding of the keywords in the header fields.
 
-If you find more bugs, please report them at <http://bitbucket.org/seschwar/x-label/issues>.
+If you find more bugs, please report them at <http://github.com/seschwar/mailkwds/issues>.
 
 # EXAMPLES
 
 Combine Mutt's X-Label and Thunderbird's X-Mozilla-Keys header fields into the standardized Keywords header field:
 
-    x-label --from X-Label , --from X-Mozilla-Keys ' ' tidy
+    mailkwds --from X-Label , --from X-Mozilla-Keys ' ' tidy
 
 Synchronize Dovecot's X-Keywords, Mutt's X-Label and Thunderbird's X-Mozilla-Keys header fields:
 
-    x-label -i X-Keywords ' ' -i X-Label , -i X-Mozilla-Keys ' ' -o X-Keywords ' ' -o X-Label ', ' -o X-Mozilla-Keys ' ' tidy
+    mailkwds -i X-Keywords ' ' -i X-Label , -i X-Mozilla-Keys ' ' -o X-Keywords ' ' -o X-Label ', ' -o X-Mozilla-Keys ' ' tidy
 
 # SEE ALSO
 
 `formail`(1), `maildirkw`(1), `reformail`(1), RFC 822, RFC 2822
 
-Homepage: <http://bitbucket.org/seschwar/x-label>
+Homepage: <http://github.com/seschwar/mailkwds>
 

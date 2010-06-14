@@ -1,7 +1,7 @@
 # Dependencies
 
 The library dependencies and their versions are listed in the file
-`x-label.cabal`.  To generate the man page [pandoc] is required.
+`mailkwds.cabal`.  To generate the man page [pandoc] is required.
 
 # Installation
 
@@ -21,17 +21,16 @@ None of the procedures above installs the manual page, as [Cabal]
 currently has no convenient way to do so.  Instead run the following
 command to generate it from the README.
 
-    pandoc -sS -f markdown -t man -o x-label.1 README
+    pandoc -sS -f markdown -t man -o mailkwds.1 README
 
 Copy the resulting file to `/usr/local/man/man1` or somewhere else
 in your `MANPATH`.
 
-    install -Dm644 x-label.1 /usr/local/man/man1/x-label.1
+    install -Dm644 mailkwds.1 /usr/local/man/man1/mailkwds.1
 
 # Usage
 
-See the x-label `README` which is also the manual page for notes on
-the usage.
+See the `README` or the manual page for notes on the usage.
 
 [Cabal]: http://haskell.org/cabal
 [pandoc]: http://johnmacfarlane.net/pandoc/

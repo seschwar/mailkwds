@@ -5,7 +5,10 @@
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
 --
 
-module Args (Config(..), parseArgs) where
+module Args
+    ( Config(..)
+    , parseArgs
+    ) where
 
 import Control.Applicative (Applicative(..), liftA2, (<$>))
 import Control.Arrow ((+++))
@@ -14,10 +17,10 @@ import Data.Char (toLower)
 import Data.List (isPrefixOf, nub, union, (\\))
 import Data.Map (Map, empty, insert, singleton)
 import Data.String (IsString(..))
-import Text.Parsec hiding (labels, satisfy, token)
+import Text.Parsec hiding (satisfy, token)
 import Text.Parsec.Error
 import ByteString (ByteString)
-import XLabel (foldHeaders)
+import MailKwds (foldHeaders)
 
 -- | The configuration options for the program.
 data Config a = Config
@@ -25,7 +28,7 @@ data Config a = Config
     , command  :: [a] -> [a] -> [a]  -- ^ the command to apply to the 'Label's
     , help     :: Bool
     , input    :: Map a a            -- ^ the headers to parse
-    , labels   :: [a]                -- ^ the 'Label's to be added/removed
+    , keywords :: [a]                -- ^ the 'Label's to be added/removed
     , output   :: [(a, a)]           -- ^ the headers to print
     , version  :: Bool
     }
@@ -36,7 +39,7 @@ instance Show a => Show (Config a) where
         ++ ", command :: [a] -> [a] -> [a]"
         ++ ", help = " ++ show (help x)
         ++ ", input = " ++ show (input x)
-        ++ ", labels = " ++ show (labels x)
+        ++ ", keywords = " ++ show (keywords x)
         ++ ", output = " ++ show (output x)
         ++ ", version = " ++ show (version x)
         ++ " }"
@@ -62,7 +65,7 @@ parseArgs args = sanitizeError
         , command  = flip const
         , help     = False
         , input    = empty
-        , labels   = []
+        , keywords   = []
         , output   = []
         , version  = False
         }
@@ -70,7 +73,7 @@ parseArgs args = sanitizeError
 -- | Print @UnExpect@ed errors @Message@s or the complete @ParseError@ if there
 -- is none.
 sanitizeError :: ParseError -> String
-sanitizeError e = (++ "Try `x-label --help` for help.")
+sanitizeError e = (++ "Try `mailkwds --help` for help.")
     . (\xs -> if null xs
                  then "Unable to parse command line arguments:\n" ++ show e
                  else unlines xs)
@@ -81,7 +84,7 @@ sanitizeConfig :: (Eq a, IsString a) => Config a -> Config a
 sanitizeConfig c = c
     { input    = sanitizeInput $ input c
     , output   = sanitizeOutput $ output c
-    , labels   = nub . reverse $ labels c  -- output labels in the same order
+    , keywords   = nub . reverse $ keywords c  -- output keywords in the same order
     }                                      -- as specified on the command line
   where
     sanitizeInput  x | x == empty = singleton "keywords" ","
@@ -153,6 +156,6 @@ pCommands = (choice . map (\(c, f) -> token c *> pure (com f) <?> "command")
         ]
 
 pLabel :: (IsString a, Monad m) => ParsecT [String] u m (Config a -> Config a)
-pLabel = lab <$> anyToken <?> "label"
-    where lab x c = c { labels = fromString x : labels c }
+pLabel = lab <$> anyToken <?> "keyword"
+    where lab x c = c { keywords = fromString x : keywords c }
 

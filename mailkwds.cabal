@@ -1,26 +1,28 @@
-name:               x-label
+name:               mailkwds
 version:            0.0
 category:           Email, Text
 synopsis:           Edit email keywords/labels/tags stored in a message header field.
 description:
-    x-label allows not only to add but also operate on a existing
-    X-Label email header.  For example it is possible to add or remove
-    certain labels to or from the header.
-homepage:           http://bitbucket.org/seschwar/x-label/
+    @mailkwds@ allows to modify keywords, labels or tags from specifiable header fields like @Keywords@, @X-Keywords@ or @X-Label@.
+    .
+    It can add to, clear, remove from, set and tidy up the set of keywords of the message.
+    .
+    @mailkwds@ is intended to be run as a message filter from a mail delivery agent such as @procmail@ or @maildrop@.
+homepage:           http://github.com/seschwar/mailkwds
 copyright:          Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 license:            MIT
 license-file:       LICENSE
 author:             Sebastian Schwarz <seschwar@googlemail.com>
 maintainer:         Sebastian Schwarz <seschwar@googlemail.com>
-bug-reports:        http://bitbucket.org/seschwar/x-label/issues/
+bug-reports:        http://github.com/seschwar/mailkwds/issues
 build-type:         Simple
 cabal-version:      >= 1.2
 extra-source-files: INSTALL, README
---data-files:         x-label.1
+--data-files:         mailkwds.1
 
 Source-repository head
-    type:     mercurial
-    location: http://bitbucket.org/seschwar/x-label/
+    type:     git
+    location: git://github.com/seschwar/mailkwds.git
 
 Flag test
     default:     False
@@ -39,12 +41,12 @@ Executable test
     other-modules:  Args,
                     ByteString,
                     Utils,
-                    XLabel
+                    MailKwds
     ghc-options:    -O2 -Wall -hide-all-packages
     extensions:     OverloadedStrings
 
-Executable x-label
-    build-depends:  base >= 4.2 && < 4.3,
+Executable mailkwds
+    build-depends:  base >= 4.0 && < 4.3,
                     bytestring >= 0.9 && < 0.10,
                     containers >= 0.3 && < 0.4,
                     mtl >= 1.1 && < 1.2,
@@ -54,7 +56,7 @@ Executable x-label
     other-modules:  Args,
                     ByteString,
                     Utils,
-                    XLabel
+                    MailKwds
     ghc-options:    -O2 -Wall -hide-all-packages
     extensions:     OverloadedStrings
 

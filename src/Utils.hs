@@ -1,5 +1,5 @@
 -- |
--- Module:     XLabel.Utils
+-- Module:     Utils
 -- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
 -- License:    MIT
 -- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
