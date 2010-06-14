@@ -9,19 +9,19 @@
 
 module Main where
 
+import Args
+import ByteString (ByteString)
 import Control.Applicative (liftA2)
 import Control.Arrow (first, (***))
 import Data.Char (isSpace)
 import Data.List (nub)
+import MailKwds
 import Test.Framework (Test, defaultMain, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.QuickCheck hiding (labels)
-import XLabel.Args
-import XLabel.Core
-import XLabel.Utils
+import Test.QuickCheck
+import Utils
+import qualified ByteString as B
 import qualified Data.Map as M
-import qualified XLabel.ByteString as B
-import XLabel.ByteString (ByteString)
 
 import System.IO.Unsafe (unsafePerformIO)
 import System.IO (hPutStrLn, stderr)
@@ -37,9 +37,9 @@ main = defaultMain tests
 tests :: [Test]
 tests =
     [ testGroup "argument parsing"
-        [ testProperty "input order"  prop_args1
-        , testProperty "output order" prop_args2
-        , testProperty "label order"  prop_args3
+        [ testProperty "input order"    prop_args1
+        , testProperty "output order"   prop_args2
+        , testProperty "keyword order"  prop_args3
         ]
     , testGroup "utils"
         [ testProperty "catenate all"  prop_cat1
@@ -69,7 +69,7 @@ prop_args2 xs = (not . null) xs ==>
          Right cfg -> output cfg  == (fmap (B.pack *** B.pack) $ nub xs)
 prop_args3 xs = case parseArgs $ ["--", "tidy"] ++ xs of
                      Left  _   -> False
-                     Right cfg -> labels cfg == (fmap B.pack $ nub xs)
+                     Right cfg -> keywords cfg == (fmap B.pack $ nub xs)
 
 prop_cat1 :: [[Int]] -> Property
 prop_cat1 xs = (not . null) xs ==>
