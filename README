@@ -61,7 +61,7 @@ tidy
 `mailkwds` strips trailing whitespace characters from the header fields.
 It also does not do MIME de- and encoding of the keywords in the header fields.
 
-If you find more bugs, please report them at <http://github.com/seschwar/mailkwds/issues>.
+If you find more bugs, please report them at <https://github.com/seschwar/mailkwds/issues>.
 
 # EXAMPLES
 
@@ -77,4 +77,4 @@ Synchronize Dovecot's X-Keywords, Mutt's X-Label and Thunderbird's X-Mozilla-Key
 
 `formail`(1), `maildirkw`(1), `reformail`(1), RFC 822, RFC 2822
 
-Homepage: <http://github.com/seschwar/mailkwds>
+Homepage: <https://github.com/seschwar/mailkwds>
