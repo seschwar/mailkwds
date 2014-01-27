@@ -10,17 +10,17 @@ module Args
     , parseArgs
     ) where
 
-import Control.Applicative (Applicative(..), liftA2, (<$>))
-import Control.Arrow ((+++))
-import Control.Category ((>>>))
-import Data.Char (toLower)
-import Data.List (isPrefixOf, nub, union, (\\))
-import Data.Map (Map, empty, insert, singleton)
-import Data.String (IsString(..))
-import Text.Parsec hiding (satisfy, token)
-import Text.Parsec.Error
+import Control.Applicative        (Applicative(..), liftA2, (<$>))
+import Control.Arrow              ((+++))
+import Control.Category           ((>>>))
 import Data.ByteString.Lazy.Char8 (ByteString)
-import MailKwds (foldHeaders)
+import Data.Char                  (toLower)
+import Data.List                  (isPrefixOf, nub, union, (\\))
+import Data.Map                   (Map, empty, insert, singleton)
+import Data.String                (IsString(..))
+import MailKwds                   (foldHeaders)
+import Text.Parsec                hiding (satisfy, token)
+import Text.Parsec.Error
 
 -- | The configuration options for the program.
 data Config a = Config
@@ -33,6 +33,7 @@ data Config a = Config
     , version  :: Bool
     }
 
+-- For debugging proposes
 instance Show a => Show (Config a) where
     show x = "Config "
         ++ "{ catenate :: [a] -> [a]"
@@ -56,8 +57,7 @@ satisfy f = tokenPrim (\c -> show [c])
 
 -- | Parse the command line arguments and create an appropriate configuration.
 parseArgs :: [String] -> Either String (Config ByteString)
-parseArgs args = sanitizeError
-    +++ (sanitizeConfig . \x -> foldr (>>>) id x config)
+parseArgs args = sanitizeError +++ (sanitizeConfig . \x -> foldr (>>>) id x config)
     $ parse pArgs "Args" args  -- (>>>) ensures that the map's values
   where                        -- get overwritten correctly
     config = Config
@@ -73,19 +73,19 @@ parseArgs args = sanitizeError
 -- | Print @UnExpect@ed errors @Message@s or the complete @ParseError@ if there
 -- is none.
 sanitizeError :: ParseError -> String
-sanitizeError e = (++ "Try `mailkwds --help` for help.")
-    . (\xs -> if null xs
-                 then "Unable to parse command line arguments:\n" ++ show e
-                 else unlines xs)
-    . (\xs -> [x | UnExpect x <- xs]) . errorMessages $ e
+sanitizeError e = if null msg
+                     then "Unable to parse command line arguments:\n" ++ show e
+                     else msg
+                  ++ "Try `mailkwds --help` for help."
+    where msg = unlines . map messageString . errorMessages $ e
 
 -- | Ensure a halfway sane configuration.
 sanitizeConfig :: (Eq a, IsString a) => Config a -> Config a
 sanitizeConfig c = c
     { input    = sanitizeInput $ input c
     , output   = sanitizeOutput $ output c
-    , keywords   = nub . reverse $ keywords c  -- output keywords in the same order
-    }                                      -- as specified on the command line
+    , keywords = nub . reverse $ keywords c  -- output keywords in the same order
+    }                                        -- as specified on the command line
   where
     sanitizeInput  x | x == empty = singleton "keywords" ","
                      | otherwise  = x

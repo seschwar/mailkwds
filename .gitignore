@@ -2,10 +2,6 @@
 ## .gitignore -- gitignore(5) for git(1)
 ##
 
-*~
-.*.sw?
-.DS_Store
+/.cabal-sandbox/
+/cabal.sandbox.config
 /dist/
-TAGS
-tags
-

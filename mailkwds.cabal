@@ -3,11 +3,15 @@ version:            0.1
 category:           Email, Text
 synopsis:           Edit email keywords/labels/tags stored in a message header field.
 description:
-    @mailkwds@ allows to modify keywords, labels or tags from specifiable header fields like @Keywords@, @X-Keywords@ or @X-Label@.
+    @mailkwds@ allows to modify keywords, labels or tags from
+    specifiable header fields like @Keywords@, @X-Keywords@ or
+    @X-Label@.
     .
-    It can add to, clear, remove from, set and tidy up the set of keywords of the message.
+    It can add to, clear, remove from, set and tidy up the set
+    of keywords of the message.
     .
-    @mailkwds@ is intended to be run as a message filter from a mail delivery agent such as @procmail@ or @maildrop@.
+    @mailkwds@ is intended to be run as a message filter from a
+    mail delivery agent such as @procmail@ or @maildrop@.
 homepage:           https://github.com/seschwar/mailkwds
 copyright:          Copyright (c) 2009-2014, Sebastian Schwarz <seschwar@gmail.com>
 license:            MIT

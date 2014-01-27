@@ -1,11 +1,11 @@
-{-# LANGUAGE BangPatterns #-}
-
 -- |
 -- Module:     Main
 -- Copyright:  Copyright (c) 2009-2014, Sebastian Schwarz <seschwar@gmail.com>
 -- License:    MIT
 -- Maintainer: Sebastian Schwarz <seschwar@gmail.com>
 --
+
+{-# LANGUAGE BangPatterns #-}
 
 module Main where
 
@@ -61,4 +61,3 @@ versionMessage = unlines $
     , "This is free software licensed under the MIT/X11 license."
     , "There is absolutely no warranty."
     ]
-

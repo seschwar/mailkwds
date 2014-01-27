@@ -26,4 +26,3 @@ mconscat prd f g = foldr h []
              in  f x `mappend` g x' : xs'
     partition x (x':xs) | prd x x' = (x', xs)
     partition _ xs                 = (mempty, xs)
-
