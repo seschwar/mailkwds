@@ -39,7 +39,6 @@ Executable test
     hs-source-dirs: src, test
     main-is:        Test.hs
     other-modules:  Args,
-                    ByteString,
                     Utils,
                     MailKwds
     ghc-options:    -O2 -Wall -hide-all-packages
@@ -54,7 +53,6 @@ Executable mailkwds
     hs-source-dirs: src
     main-is:        Main.hs
     other-modules:  Args,
-                    ByteString,
                     Utils,
                     MailKwds
     ghc-options:    -O2 -Wall -hide-all-packages

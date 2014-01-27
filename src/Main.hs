@@ -9,13 +9,13 @@
 
 module Main where
 
-import Control.Monad (when)
-import Data.List (nub)
-import System.Environment (getArgs)
-import System.Exit (exitSuccess)
-import Args (Config(..), parseArgs)
-import MailKwds (rewriteMsg, toHeaders)
-import qualified ByteString as B
+import           Args                       (Config (..), parseArgs)
+import           Control.Monad              (when)
+import qualified Data.ByteString.Lazy.Char8 as B
+import           Data.List                  (nub)
+import           MailKwds                   (rewriteMsg, toHeaders)
+import           System.Environment         (getArgs)
+import           System.Exit                (exitSuccess)
 
 -- | Rewrites the keyword header fields from a message read from stdin to
 -- stdout.

@@ -19,7 +19,7 @@ import Data.Map (Map, empty, insert, singleton)
 import Data.String (IsString(..))
 import Text.Parsec hiding (satisfy, token)
 import Text.Parsec.Error
-import ByteString (ByteString)
+import Data.ByteString.Lazy.Char8 (ByteString)
 import MailKwds (foldHeaders)
 
 -- | The configuration options for the program.
