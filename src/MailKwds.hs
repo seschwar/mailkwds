@@ -11,6 +11,7 @@ import           Control.Applicative             (liftA2)
 import           Control.Monad.Trans.Writer.Lazy (Writer, runWriter, tell)
 import           Data.ByteString.Lazy.Char8      (ByteString)
 import qualified Data.ByteString.Lazy.Char8      as B
+import           Data.ByteString.Lazy.Search     (split, strictify)
 import           Data.Char                       (isSpace, toLower)
 import           Data.Map                        (Map, lookup)
 import           Data.Maybe                      (catMaybes)
@@ -72,21 +73,9 @@ extractKeywords m h = let (n, b) = B.break (== ':') h
 -- | Splits the body of the given header field on the given substring into
 -- keywords.
 toKeywords :: ByteString -> ByteString -> [ByteString]
-toKeywords x = filter (not . B.null) . map (stripEnd . stripStart) . splitOn x
-    where
-    -- | Adapted from the @tokenise@ example of 'Data.ByteString.Char8.breakSubstring'
-    splitOn :: ByteString -> ByteString -> [ByteString]
-    splitOn x y = let (h, t) = breakSubstring x y
-                  in  h : if B.null t
-                             then []
-                             else splitOn x (B.drop (B.length x) t)
-
-    -- | Lazy version of 'Data.ByteString.Char8.breakSubstring'
-    breakSubstring :: ByteString -> ByteString -> (ByteString, ByteString)
-    breakSubstring pat src = search 0 src
-        where search n s | B.null s               = (src, B.empty)  -- not found
-                         | pat `B.isPrefixOf` s   = (B.take n src, s)
-                         | otherwise              = search (n + 1) (B.tail s)
+toKeywords x = filter (not . B.null)
+               . map (stripEnd . stripStart)
+               . split (strictify x)
 
 -- | Produces an email header field for all specified fields.
 toHeaders :: [(ByteString, ByteString)] -> [ByteString] -> [Maybe ByteString]
