@@ -1,8 +1,8 @@
 -- |
 -- Module:     Args
--- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
+-- Copyright:  Copyright (c) 2009-2014, Sebastian Schwarz <seschwar@gmail.com>
 -- License:    MIT
--- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
+-- Maintainer: Sebastian Schwarz <seschwar@gmail.com>
 --
 
 module Args
@@ -158,4 +158,3 @@ pCommands = (choice . map (\(c, f) -> token c *> pure (com f) <?> "command")
 pLabel :: (IsString a, Monad m) => ParsecT [String] u m (Config a -> Config a)
 pLabel = lab <$> anyToken <?> "keyword"
     where lab x c = c { keywords = fromString x : keywords c }
-

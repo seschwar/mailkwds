@@ -9,11 +9,11 @@ description:
     .
     @mailkwds@ is intended to be run as a message filter from a mail delivery agent such as @procmail@ or @maildrop@.
 homepage:           http://github.com/seschwar/mailkwds
-copyright:          Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
+copyright:          Copyright (c) 2009-2014, Sebastian Schwarz <seschwar@gmail.com>
 license:            MIT
 license-file:       LICENSE
-author:             Sebastian Schwarz <seschwar@googlemail.com>
-maintainer:         Sebastian Schwarz <seschwar@googlemail.com>
+author:             Sebastian Schwarz <seschwar@gmail.com>
+maintainer:         Sebastian Schwarz <seschwar@gmail.com>
 bug-reports:        http://github.com/seschwar/mailkwds/issues
 build-type:         Simple
 cabal-version:      >= 1.2
@@ -59,4 +59,3 @@ Executable mailkwds
                     MailKwds
     ghc-options:    -O2 -Wall -hide-all-packages
     extensions:     OverloadedStrings
-

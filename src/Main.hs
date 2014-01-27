@@ -2,9 +2,9 @@
 
 -- |
 -- Module:     Main
--- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
+-- Copyright:  Copyright (c) 2009-2014, Sebastian Schwarz <seschwar@gmail.com>
 -- License:    MIT
--- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
+-- Maintainer: Sebastian Schwarz <seschwar@gmail.com>
 --
 
 module Main where
@@ -57,8 +57,8 @@ versionNumber = "0.0"
 versionMessage :: String
 versionMessage = unlines $
     [ "mailkwds " ++ versionNumber
-    , "Copyright (C) 2009-2010, Sebastian Schwarz"
-    , "This is free software licensed under the ISC license."
+    , "Copyright (C) 2009-2014, Sebastian Schwarz"
+    , "This is free software licensed under the MIT/X11 license."
     , "There is absolutely no warranty."
     ]
 

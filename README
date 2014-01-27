@@ -1,5 +1,5 @@
 % MAILKWDS(1) 0.0
-% Sebastian Schwarz <seschwar@googlemail.com>
+% Sebastian Schwarz <seschwar@gmail.com>
 % 2010-06-14
 
 # NAME
@@ -78,4 +78,3 @@ Synchronize Dovecot's X-Keywords, Mutt's X-Label and Thunderbird's X-Mozilla-Key
 `formail`(1), `maildirkw`(1), `reformail`(1), RFC 822, RFC 2822
 
 Homepage: <http://github.com/seschwar/mailkwds>
-

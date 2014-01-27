@@ -1,8 +1,8 @@
 -- |
 -- Module:     MailKwds
--- Copyright:  Copyright (c) 2009-2010, Sebastian Schwarz <seschwar@googlemail.com>
+-- Copyright:  Copyright (c) 2009-2014, Sebastian Schwarz <seschwar@gmail.com>
 -- License:    MIT
--- Maintainer: Sebastian Schwarz <seschwar@googlemail.com>
+-- Maintainer: Sebastian Schwarz <seschwar@gmail.com>
 --
 
 module MailKwds where

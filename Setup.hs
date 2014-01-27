@@ -25,4 +25,3 @@ ppPandoc _ _ = PreProcessor
                             output, input]
         return ()
     }
-
