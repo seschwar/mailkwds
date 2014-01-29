@@ -12,17 +12,19 @@ module Args
     , parseArgs
     ) where
 
-import Control.Applicative        (Applicative(..), liftA2, (<$>))
-import Control.Arrow              ((+++))
-import Control.Category           ((>>>))
+import Control.Applicative (Applicative(..), liftA2, (<$>))
+import Control.Arrow       ((+++))
+import Control.Category    ((>>>))
+import Data.Char           (toLower)
+import Data.List           (isPrefixOf, nub, union, (\\))
+import Data.String         (IsString(..))
+
 import Data.ByteString.Lazy.Char8 (ByteString)
-import Data.Char                  (toLower)
-import Data.List                  (isPrefixOf, nub, union, (\\))
 import Data.Map                   (Map, empty, insert, singleton)
-import Data.String                (IsString(..))
-import MailKwds                   (foldHeaders)
 import Text.Parsec                hiding (satisfy, token)
 import Text.Parsec.Error
+
+import MailKwds (foldHeaders)
 
 -- | The configuration options for the program.
 data Config a = Config

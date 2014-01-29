@@ -9,16 +9,18 @@
 
 module MailKwds where
 
-import           Control.Applicative             (liftA2)
+import Control.Applicative (liftA2)
+import Data.Char           (isSpace, toLower)
+import Data.Maybe          (catMaybes)
+import Prelude             hiding (lookup)
+
 import           Control.Monad.Trans.Writer.Lazy (Writer, runWriter, tell)
 import           Data.ByteString.Lazy.Char8      (ByteString)
 import qualified Data.ByteString.Lazy.Char8      as B
 import           Data.ByteString.Lazy.Search     (split, strictify)
-import           Data.Char                       (isSpace, toLower)
 import           Data.Map                        (Map, lookup)
-import           Data.Maybe                      (catMaybes)
-import           Prelude                         hiding (lookup)
-import           Utils                           (applyEach, mconscat)
+
+import Utils (applyEach, mconscat)
 
 stripStart :: ByteString -> ByteString
 stripStart = B.dropWhile isSpace

@@ -9,15 +9,17 @@
 
 module Main where
 
-import           Args                       (Config (..), parseArgs)
-import           Control.Monad              (when)
+import Control.Monad      (when)
+import Data.List          (nub)
+import System.Environment (getArgs)
+import System.Exit        (exitSuccess)
+
 import qualified Data.ByteString.Lazy.Char8 as B
-import           Data.List                  (nub)
 import           Data.Version               (showVersion)
-import           MailKwds                   (rewriteMsg, toHeaders)
-import qualified Paths_mailkwds             as P
-import           System.Environment         (getArgs)
-import           System.Exit                (exitSuccess)
+
+import           Args           (Config (..), parseArgs)
+import           MailKwds       (rewriteMsg, toHeaders)
+import qualified Paths_mailkwds as P
 
 -- | Rewrites the keyword header fields from a message read from stdin to
 -- stdout.
