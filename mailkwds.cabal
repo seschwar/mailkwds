@@ -50,7 +50,7 @@ Executable test
         Args,
         Utils,
         MailKwds
-    ghc-options: -O2 -Wall -hide-all-packages
+    ghc-options: -O2 -Wall
 
 Executable mailkwds
     build-depends:
@@ -66,4 +66,4 @@ Executable mailkwds
         Args,
         Utils,
         MailKwds
-    ghc-options: -O2 -Wall -hide-all-packages
+    ghc-options: -O2 -Wall
