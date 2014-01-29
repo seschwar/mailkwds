@@ -1,7 +1,7 @@
-name:               mailkwds
-version:            0.1
-category:           Email, Text
-synopsis:           Edit email keywords/labels/tags stored in a message header field.
+name: mailkwds
+version: 0.1
+category: Email, Text
+synopsis: Edit email keywords/labels/tags stored in a message header field.
 description:
     @mailkwds@ allows to modify keywords, labels or tags from
     specifiable header fields like @Keywords@, @X-Keywords@ or
@@ -12,53 +12,60 @@ description:
     .
     @mailkwds@ is intended to be run as a message filter from a
     mail delivery agent such as @procmail@ or @maildrop@.
-homepage:           https://github.com/seschwar/mailkwds
-copyright:          Copyright (c) 2009-2014, Sebastian Schwarz <seschwar@gmail.com>
-license:            MIT
-license-file:       LICENSE
-author:             Sebastian Schwarz <seschwar@gmail.com>
-maintainer:         Sebastian Schwarz <seschwar@gmail.com>
-bug-reports:        https://github.com/seschwar/mailkwds/issues
-build-type:         Simple
-cabal-version:      >= 1.2
-extra-source-files: INSTALL, README
---data-files:         mailkwds.1
+homepage: https://github.com/seschwar/mailkwds
+copyright: Copyright (c) 2009-2014, Sebastian Schwarz <seschwar@gmail.com>
+license: MIT
+license-file: LICENSE
+author: Sebastian Schwarz <seschwar@gmail.com>
+maintainer: Sebastian Schwarz <seschwar@gmail.com>
+bug-reports: https://github.com/seschwar/mailkwds/issues
+build-type: Simple
+cabal-version: >= 1.2
+extra-source-files:
+    INSTALL,
+    README
+--data-files: mailkwds.1
 
 Source-repository head
-    type:     git
+    type: git
     location: https://github.com/seschwar/mailkwds.git
 
 Flag test
-    default:     False
-    description: Build the test executable.
+    default: False
+    description: build test executable
 
 Executable test
     if flag(test)
---      build-depends: QuickCheck                 >= 2.1,
---                     test-framework             >= 0.2,
+--      build-depends: QuickCheck >= 2.1,
+--                     test-framework >= 0.2,
 --                     test-framework-quickcheck2 >= 0.2
-        buildable:     True
+        buildable: True
     else
-        buildable:     False
-    hs-source-dirs: src, test
-    main-is:        Test.hs
-    other-modules:  Args,
-                    Utils,
-                    MailKwds
-    ghc-options:    -O2 -Wall -hide-all-packages
-    extensions:     OverloadedStrings
+        buildable: False
+    hs-source-dirs:
+        src,
+        test
+    main-is: Test.hs
+    other-modules:
+        Args,
+        Utils,
+        MailKwds
+    ghc-options: -O2 -Wall -hide-all-packages
+    extensions: OverloadedStrings
 
 Executable mailkwds
-    build-depends:  base         >= 4.0,
-                    bytestring   >= 0.9,
-                    containers   >= 0.3,
-                    parsec       >= 3.1,
-                    stringsearch >= 0.3,
-                    transformers >= 0.2
+    build-depends:
+        base >= 4.0,
+        bytestring >= 0.9,
+        containers >= 0.3,
+        parsec >= 3.1,
+        stringsearch >= 0.3,
+        transformers >= 0.2
     hs-source-dirs: src
-    main-is:        Main.hs
-    other-modules:  Args,
-                    Utils,
-                    MailKwds
-    ghc-options:    -O2 -Wall -hide-all-packages
-    extensions:     OverloadedStrings
+    main-is: Main.hs
+    other-modules:
+        Args,
+        Utils,
+        MailKwds
+    ghc-options: -O2 -Wall -hide-all-packages
+    extensions: OverloadedStrings
