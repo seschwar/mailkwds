@@ -51,7 +51,6 @@ Executable test
         Utils,
         MailKwds
     ghc-options: -O2 -Wall -hide-all-packages
-    extensions: OverloadedStrings
 
 Executable mailkwds
     build-depends:
@@ -68,4 +67,3 @@ Executable mailkwds
         Utils,
         MailKwds
     ghc-options: -O2 -Wall -hide-all-packages
-    extensions: OverloadedStrings

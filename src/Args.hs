@@ -5,6 +5,8 @@
 -- Maintainer: Sebastian Schwarz <seschwar@gmail.com>
 --
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Args
     ( Config(..)
     , parseArgs
