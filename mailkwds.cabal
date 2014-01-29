@@ -1,5 +1,5 @@
 name:               mailkwds
-version:            0.0
+version:            0.1
 category:           Email, Text
 synopsis:           Edit email keywords/labels/tags stored in a message header field.
 description:
