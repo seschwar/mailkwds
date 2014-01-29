@@ -13,7 +13,9 @@ import           Args                       (Config (..), parseArgs)
 import           Control.Monad              (when)
 import qualified Data.ByteString.Lazy.Char8 as B
 import           Data.List                  (nub)
+import           Data.Version               (showVersion)
 import           MailKwds                   (rewriteMsg, toHeaders)
+import qualified Paths_mailkwds             as P
 import           System.Environment         (getArgs)
 import           System.Exit                (exitSuccess)
 
@@ -51,12 +53,9 @@ helpMessage = unlines $
     , "    tidy            remove duplicated keywords"
     ]
 
-versionNumber :: String
-versionNumber = "0.0"
-
 versionMessage :: String
 versionMessage = unlines $
-    [ "mailkwds " ++ versionNumber
+    [ "mailkwds " ++ showVersion P.version
     , "Copyright (C) 2009-2014, Sebastian Schwarz"
     , "This is free software licensed under the MIT/X11 license."
     , "There is absolutely no warranty."
